@@ -1,19 +1,25 @@
 import 'dart:convert';
 
 import 'package:delivery_tracking_app/add_delivery_batch.dart';
-import 'package:delivery_tracking_app/delivery_batch_detail.dart';
+import 'package:delivery_tracking_app/assign_driver.dart';
 import 'package:delivery_tracking_app/http_service.dart';
+import 'package:delivery_tracking_app/scan_crates.dart';
 import 'package:flutter/material.dart';
 
-class DeliveryBatchesPage extends StatefulWidget {
-  const DeliveryBatchesPage({super.key});
+import 'delivery_batches.dart';
+
+class DriverUnloadDashBoard extends StatefulWidget {
+  final Driver driver;
+
+  const DriverUnloadDashBoard({super.key, required this.driver});
 
   @override
-  State<DeliveryBatchesPage> createState() => _DeliveryBatchesPageState();
+  State<DriverUnloadDashBoard> createState() => _DriverUnloadDashBoardState();
 }
 
-class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
+class _DriverUnloadDashBoardState extends State<DriverUnloadDashBoard> {
   List<DeliveryBatch> deliveryBatches = [];
+  bool batchesLoaded = false;
 
   @override
   void initState() {
@@ -23,13 +29,16 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
   }
 
   getDeliveryBatches() async {
-    var response = await HttpService().get('app/delivery_batches/');
+    var response = await HttpService()
+        .get('app/vehicles/${widget.driver.currentVehicle!.id}/');
     var decodedBody = jsonDecode(response.body);
     // setState(() {
+    deliveryBatches = [];
+    for (var deliveryBatch in decodedBody['delivery_batches']) {
+      deliveryBatches.add(parseDeliveryBatch(deliveryBatch));
+    }
     setState(() {
-      for (var deliveryBatch in decodedBody) {
-        deliveryBatches.add(parseDeliveryBatch(deliveryBatch));
-      }
+      batchesLoaded = true;
     });
     // });
   }
@@ -70,7 +79,7 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Delivery Batches'),
+        title: Text('Select batch to unload'),
       ),
       body: ListView.builder(
         itemCount: deliveryBatches.length,
@@ -82,13 +91,26 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
               onTap: () async {
                 var response = await Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (cxt) => DeliveryBatchDetail(
-                      deliveryBatch: deliveryBatch,
+                    builder: (cxt) => ScanCratesPage(
+                      crateList: deliveryBatch.crates,
+                      title: "Unload crates from delivery batch",
+                      afterScanningFinished: () async {
+                        var unloadResponse = await HttpService().update(
+                          'app/vehicles/${widget.driver.currentVehicle!.id}/unload_delivery_batch/',
+                          {"id": deliveryBatch.id},
+                        );
+                        if (unloadResponse.statusCode == 200) {
+                          getDeliveryBatches();
+                        }
+                        Navigator.pop(context);
+                      },
                     ),
                   ),
                 );
                 if (response == true) {
-                  deliveryBatches = [];
+                  setState(() {
+                    deliveryBatches = [];
+                  });
                   getDeliveryBatches();
                 }
               },
@@ -140,29 +162,28 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
   }
 }
 
-class Crate {
-  String crateId;
-  String contents;
-
-  Crate(this.crateId, this.contents);
-}
-
-class Vehicle {
-  int id;
-  String licensePlate;
-  String type;
-  bool isLoaded;
-
-  Vehicle(this.id, this.licensePlate, this.type, this.isLoaded);
-}
-
-class DeliveryBatch {
-  int id;
-  List<Crate> crates;
-  Vehicle? vehicle;
-  Customer customer;
-  String address;
-
-  DeliveryBatch(
-      this.id, this.crates, this.vehicle, this.customer, this.address);
-}
+// class Crate {
+//   String crateId;
+//   String contents;
+//
+//   Crate(this.crateId, this.contents);
+// }
+//
+// class Vehicle {
+//   int id;
+//   String licensePlate;
+//   String type;
+//
+//   Vehicle(this.id, this.licensePlate, this.type);
+// }
+//
+// class DeliveryBatch {
+//   int id;
+//   List<Crate> crates;
+//   Vehicle? vehicle;
+//   Customer customer;
+//   String address;
+//
+//   DeliveryBatch(
+//       this.id, this.crates, this.vehicle, this.customer, this.address);
+// }
