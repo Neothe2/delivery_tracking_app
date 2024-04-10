@@ -37,10 +37,24 @@ class _DriverUnloadDashBoardState extends State<DriverUnloadDashBoard> {
     for (var deliveryBatch in decodedBody['delivery_batches']) {
       deliveryBatches.add(parseDeliveryBatch(deliveryBatch));
     }
+
+    if (deliveryBatches.isEmpty) {
+      await finishUnloading();
+      Navigator.pop(context);
+    }
+
     setState(() {
       batchesLoaded = true;
     });
     // });
+  }
+
+  finishUnloading() async {
+    var response = await HttpService().update(
+        'app/vehicles/${widget.driver.currentVehicle!.id}/unload_vehicle/', {});
+    // if (response.statusCode == 200) {
+    //   Navigator.pop(context);
+    // }
   }
 
   DeliveryBatch parseDeliveryBatch(Map<String, dynamic> deliveryBatch) {
@@ -72,7 +86,7 @@ class _DriverUnloadDashBoardState extends State<DriverUnloadDashBoard> {
   }
 
   Crate parseCrate(Map<String, dynamic> crate) {
-    return Crate(crate['crate_id'], crate['contents']);
+    return Crate(crate['crate_id']);
   }
 
   @override
@@ -100,7 +114,7 @@ class _DriverUnloadDashBoardState extends State<DriverUnloadDashBoard> {
                           {"id": deliveryBatch.id},
                         );
                         if (unloadResponse.statusCode == 200) {
-                          getDeliveryBatches();
+                          await getDeliveryBatches();
                         }
                         Navigator.pop(context);
                       },
@@ -129,34 +143,6 @@ class _DriverUnloadDashBoardState extends State<DriverUnloadDashBoard> {
             ),
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          // Contact newContact = await Navigator.of(context).push(
-          //   MaterialPageRoute(
-          //     builder: (cxt) => AddContact(),
-          //   ),
-          // );
-          // print(newContact);
-          // setState(() {
-          //   this.contacts.add(newContact);
-          // });
-
-          var response = await Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (cxt) => AddDeliveryBatch(),
-            ),
-          );
-
-          if (response == true) {
-            this.deliveryBatches = [];
-            getDeliveryBatches();
-          }
-        },
-        child: const Icon(Icons.add),
-        shape: CircleBorder(),
-        backgroundColor: Colors.deepOrangeAccent,
-        foregroundColor: Colors.white,
       ),
     );
   }

@@ -33,9 +33,10 @@ class _HomePageState extends State<HomePage> {
     super.initState();
 
     getGroup();
+    //navigateToUnloadDashBoard();
   }
 
-  Future<void> getGroup() async {
+  Future<void> getGroup({bool navigate = true}) async {
     // groups = [];
     // // username = '...';
     // // // user = null;
@@ -71,22 +72,32 @@ class _HomePageState extends State<HomePage> {
             'app/vehicles/${driver!.currentVehicle!.id}/get_crates_of_vehicle/');
         var cratesData = jsonDecode(cratesResponse.body);
         for (var crate in cratesData) {
-          cratesToBeLoaded.add(Crate(crate['crate_id'], crate['contents']));
+          cratesToBeLoaded.add(Crate(crate['crate_id']));
         }
       }
       setState(() {
         driverLoaded = true;
       });
-
-      if (driverLoaded &&
-          driver!.currentVehicle != null &&
-          driver!.currentVehicle!.isLoaded == true) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (cxt) => DriverUnloadDashBoard(driver: driver!),
-          ),
-        );
+      if (navigate) {
+        await navigateToUnloadDashboard();
       }
+    }
+  }
+
+  navigateToUnloadDashboard() async {
+    if (driverLoaded &&
+        driver!.currentVehicle != null &&
+        driver!.currentVehicle!.isLoaded == true) {
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (cxt) => DriverUnloadDashBoard(driver: driver!),
+        ),
+      );
+
+      setState(() {
+        driverLoaded = false;
+      });
+      await getGroup(navigate: false);
     }
   }
 
@@ -108,180 +119,208 @@ class _HomePageState extends State<HomePage> {
       ),
       resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(
-              height: 50,
-            ),
-            // ignore: prefer_const_constructors
-            if (groups.contains('driver'))
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+        child: (driverLoaded || !groups.contains('driver'))
+            ? Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  (driverLoaded)
-                      ? Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Card(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    'Assigned Vehicle',
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        decoration: TextDecoration.underline),
+                  SizedBox(
+                    height: 50,
+                  ),
+                  // ignore: prefer_const_constructors
+                  if (groups.contains('driver'))
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        (driverLoaded)
+                            ? Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Card(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          'Assigned Vehicle',
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              decoration:
+                                                  TextDecoration.underline),
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          child: (driver!.currentVehicle !=
+                                                  null)
+                                              ? Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 8.0),
+                                                  child: Text(
+                                                    '${driver!.currentVehicle!.type}: ${driver!.currentVehicle!.licensePlate}',
+                                                    textAlign: TextAlign.center,
+                                                    style:
+                                                        TextStyle(fontSize: 25),
+                                                  ),
+                                                )
+                                              : const Text(
+                                                  "You don't have any vehicles assigned to you. \n Contact your transport allocation staff\n if this isn't supposed to happen.",
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  Container(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 10),
-                                    child: (driver!.currentVehicle != null)
-                                        ? Padding(
-                                            padding:
-                                                const EdgeInsets.only(top: 8.0),
-                                            child: Text(
-                                              '${driver!.currentVehicle!.type}: ${driver!.currentVehicle!.licensePlate}',
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(fontSize: 25),
-                                            ),
+                                ),
+                              )
+                            : const Text('Loading...'),
+                      ],
+                    ),
+                  SizedBox(
+                    height: 150,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      (!groups.contains('driver'))
+                          ? Expanded(
+                              child: Text(
+                              'Hello, $username',
+                              style: const TextStyle(fontSize: 20),
+                              textAlign: TextAlign.center,
+                            ))
+                          : Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 50.0, vertical: 20),
+                                child: (driver != null &&
+                                        driverLoaded &&
+                                        cratesToBeLoaded.isNotEmpty)
+                                    ? (driverLoaded &&
+                                            driver!.currentVehicle != null &&
+                                            driver!.currentVehicle!.isLoaded ==
+                                                false)
+                                        ? Text(
+                                            "When you're ready to start loading, press the start loading button",
+                                            textAlign: TextAlign.center,
                                           )
                                         : const Text(
-                                            "You don't have any vehicles assigned to you. \n Contact your transport allocation staff\n if this isn't supposed to happen.",
-                                            textAlign: TextAlign.center,
-                                          ),
-                                  ),
-                                ],
+                                            'Click "Go to unloading page"')
+                                    : const Text(
+                                        'There is nothing in your vehicle',
+                                        textAlign: TextAlign.center,
+                                      ),
                               ),
                             ),
-                          ),
-                        )
-                      : const Text('Loading...'),
-                ],
-              ),
-            SizedBox(
-              height: 150,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                (!groups.contains('driver'))
-                    ? Expanded(
-                        child: Text(
-                        'Hello, $username',
-                        style: const TextStyle(fontSize: 20),
-                        textAlign: TextAlign.center,
-                      ))
-                    : Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 50.0, vertical: 20),
-                          child: (driverLoaded &&
-                                  driver!.currentVehicle != null &&
-                                  driver!.currentVehicle!.isLoaded == false)
-                              ? Text(
-                                  "When you're ready to start loading, press the start loading button",
-                                  textAlign: TextAlign.center,
-                                )
-                              : const Text('Click "Go to unloading page"'),
-                        ),
-                      ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Column(
-                  children: [
-                    if (driver != null && driverLoaded)
-                      (driverLoaded &&
-                              driver!.currentVehicle != null &&
-                              driver!.currentVehicle!.isLoaded == false)
-                          ? OutlinedButton(
-                              style: ButtonStyle(
-                                  // MaterialStatePropertyAll(Colors.white),
-                                  foregroundColor:
-                                      MaterialStatePropertyAll(Colors.blue),
-                                  shape: MaterialStatePropertyAll(
-                                      RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10)))),
-                              onPressed: () async {
-                                var response = await Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (cxt) => ScanCratesPage(
-                                      title: 'Load Crates',
-                                      afterScanningFinished: () {
-                                        afterScanningFinished();
-                                      },
-                                      crateList: cratesToBeLoaded,
-                                    ),
-                                  ),
-                                );
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Column(
+                        children: [
+                          if (driver != null &&
+                              driverLoaded &&
+                              cratesToBeLoaded.isNotEmpty)
+                            (driverLoaded &&
+                                    driver!.currentVehicle != null &&
+                                    driver!.currentVehicle!.isLoaded == false)
+                                ? OutlinedButton(
+                                    style: ButtonStyle(
+                                        // MaterialStatePropertyAll(Colors.white),
+                                        foregroundColor:
+                                            MaterialStatePropertyAll(
+                                                Colors.blue),
+                                        shape: MaterialStatePropertyAll(
+                                            RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        10)))),
+                                    onPressed: () async {
+                                      var response =
+                                          await Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (cxt) => ScanCratesPage(
+                                            title: 'Load Crates',
+                                            afterScanningFinished: () {
+                                              afterScanningFinished();
+                                            },
+                                            crateList: cratesToBeLoaded,
+                                          ),
+                                        ),
+                                      );
 
-                                getGroup();
+                                      getGroup();
+                                      //navigateToUnloadDashboard
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        'Start Loading',
+                                        style: TextStyle(fontSize: 50),
+                                      ),
+                                    ))
+                                : OutlinedButton(
+                                    style: ButtonStyle(
+                                        // MaterialStatePropertyAll(Colors.white),
+                                        foregroundColor:
+                                            MaterialStatePropertyAll(
+                                                Colors.blue),
+                                        shape: MaterialStatePropertyAll(
+                                            RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        10)))),
+                                    onPressed: () async {
+                                      var response =
+                                          await Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (cxt) =>
+                                              DriverUnloadDashBoard(
+                                            driver: driver!,
+                                          ),
+                                        ),
+                                      );
+                                      setState(() {
+                                        driverLoaded = false;
+                                      });
+                                      await getGroup(navigate: false);
+                                    },
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text(
+                                        'Go to \nunloading page',
+                                        style: TextStyle(fontSize: 40),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ))
+                        ],
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    height: 150,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Column(
+                        children: [
+                          OutlinedButton(
+                              onPressed: () {
+                                logOut();
                               },
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  'Start Loading',
-                                  style: TextStyle(fontSize: 50),
-                                ),
-                              ))
-                          : OutlinedButton(
-                              style: ButtonStyle(
-                                  // MaterialStatePropertyAll(Colors.white),
-                                  foregroundColor:
-                                      MaterialStatePropertyAll(Colors.blue),
-                                  shape: MaterialStatePropertyAll(
-                                      RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10)))),
-                              onPressed: () async {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (cxt) => DriverUnloadDashBoard(
-                                      driver: driver!,
-                                    ),
-                                  ),
-                                );
-                                getGroup();
-                              },
-                              child: const Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Text(
-                                  'Go to \nunloading page',
-                                  style: TextStyle(fontSize: 40),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ))
-                  ],
-                )
-              ],
-            ),
-            SizedBox(
-              height: 150,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Column(
-                  children: [
-                    OutlinedButton(
-                        onPressed: () {
-                          logOut();
-                        },
-                        child: Text('Log out'))
-                  ],
-                )
-              ],
-            ),
-          ],
-        ),
+                              child: Text('Log out'))
+                        ],
+                      )
+                    ],
+                  ),
+                ],
+              )
+            : const Text('Loading...'),
       ),
       drawer: Drawer(
         child: ListView(

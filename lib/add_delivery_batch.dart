@@ -47,7 +47,7 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
   }
 
   Crate parseCrate(Map<String, dynamic> crate) {
-    return Crate(crate['crate_id'], crate['contents']);
+    return Crate(crate['crate_id']);
   }
 
   @override

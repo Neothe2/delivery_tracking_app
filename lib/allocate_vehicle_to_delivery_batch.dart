@@ -67,7 +67,7 @@ class _AllocateVehicleToDeliveryBatchState
   }
 
   Crate parseCrate(Map<String, dynamic> crate) {
-    return Crate(crate['crate_id'], crate['contents']);
+    return Crate(crate['crate_id']);
   }
 
   @override

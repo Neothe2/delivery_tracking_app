@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'http_service.dart';
 
 class DeliveryBatchDetail extends StatefulWidget {
-  final DeliveryBatch deliveryBatch;
+  DeliveryBatch deliveryBatch;
 
-  const DeliveryBatchDetail({super.key, required this.deliveryBatch});
+  DeliveryBatchDetail({super.key, required this.deliveryBatch});
 
   @override
   State<DeliveryBatchDetail> createState() => _DeliveryBatchDetailState();
@@ -196,6 +196,7 @@ class _DeliveryBatchDetailState extends State<DeliveryBatchDetail> {
               );
 
               setState(() {
+                widget.deliveryBatch = response;
                 cratesLoaded = true;
                 // widget.deliveryBatch.crates = response;
               });

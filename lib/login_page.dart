@@ -1,12 +1,10 @@
 // login_page.dart
 import 'dart:convert';
-import 'package:delivery_tracking_app/http_service.dart';
-import 'package:delivery_tracking_app/secure_storage_singleton.dart';
-import 'package:delivery_tracking_app/home.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
 
+import 'package:delivery_tracking_app/home.dart';
+import 'package:delivery_tracking_app/http_service.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class LoginPage extends StatefulWidget {
   @override
@@ -83,7 +81,10 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _login() async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/auth/jwt/create'), // Ensure the port is specified if needed.
+        Uri.parse('http://192.168.68.121:8000/auth/jwt/create/'),
+        // Ensure the port is specified if needed.
+        // Uri.parse('http://10.0.2.2:8000/auth/jwt/create'),
+        // Ensure the port is specified if needed.
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'username': _usernameController.text,
@@ -114,8 +115,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   navigateToHomePage(String accessKey) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => HomePage(accessToken: accessKey,)));
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => HomePage(
+              accessToken: accessKey,
+            )));
   }
-
 }
-

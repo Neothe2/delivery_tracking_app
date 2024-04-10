@@ -57,7 +57,7 @@ class _AssignDriverToVehiclePageState extends State<AssignDriverToVehiclePage> {
   }
 
   Crate parseCrate(Map<String, dynamic> crate) {
-    return Crate(crate['crate_id'], crate['contents']);
+    return Crate(crate['crate_id']);
   }
 
   @override

@@ -63,7 +63,7 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
   }
 
   Crate parseCrate(Map<String, dynamic> crate) {
-    return Crate(crate['crate_id'], crate['contents']);
+    return Crate(crate['crate_id']);
   }
 
   @override
@@ -142,9 +142,8 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
 
 class Crate {
   String crateId;
-  String contents;
 
-  Crate(this.crateId, this.contents);
+  Crate(this.crateId);
 }
 
 class Vehicle {
