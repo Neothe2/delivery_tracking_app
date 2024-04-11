@@ -74,7 +74,10 @@ class _SelectableListViewState extends State<SelectableListView> {
                         final item = filteredItems[index];
                         return RadioListTile<dynamic>(
                           // Use the same type as 'value'
-                          title: Text(item.key),
+                          title: Text(
+                            item.key,
+                            style: TextStyle(color: Colors.black87),
+                          ),
                           value: item.value,
                           // Set the value from the filtered item
                           groupValue: selectedValue,

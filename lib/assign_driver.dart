@@ -119,24 +119,27 @@ class _AssignDriverToVehiclePageState extends State<AssignDriverToVehiclePage> {
                   }
                 }
               },
-              child: Card(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.lightBlue,
-                        foregroundColor: Colors.white,
-                        child: Text(driver.id.toString().toUpperCase()),
-                      ),
-                      title: Text(driver.name),
-                      subtitle: (driver.currentVehicle != null)
-                          ? Text(
-                              '${driver.currentVehicle!.type}: ${driver.currentVehicle!.licensePlate}')
-                          : const Text('No vehicle assigned'),
-                      trailing: const Icon(Icons.chevron_right_sharp),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: const Border.fromBorderSide(
+                      BorderSide(color: Colors.grey),
                     ),
-                  ],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      foregroundColor: Colors.white,
+                      child: Text(driver.id.toString().toUpperCase()),
+                    ),
+                    title: Text(driver.name),
+                    subtitle: (driver.currentVehicle != null)
+                        ? Text(
+                            '${driver.currentVehicle!.type}: ${driver.currentVehicle!.licensePlate}')
+                        : const Text('No vehicle assigned'),
+                    trailing: const Icon(Icons.chevron_right_sharp),
+                  ),
                 ),
               ),
             ),

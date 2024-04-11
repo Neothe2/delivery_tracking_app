@@ -230,9 +230,9 @@ class _HomePageState extends State<HomePage> {
                                 ? OutlinedButton(
                                     style: ButtonStyle(
                                         // MaterialStatePropertyAll(Colors.white),
-                                        foregroundColor:
-                                            MaterialStatePropertyAll(
-                                                Colors.blue),
+                                        // foregroundColor:
+                                        //     MaterialStatePropertyAll(
+                                        //         Colors.blue),
                                         shape: MaterialStatePropertyAll(
                                             RoundedRectangleBorder(
                                                 borderRadius:
@@ -265,9 +265,9 @@ class _HomePageState extends State<HomePage> {
                                 : OutlinedButton(
                                     style: ButtonStyle(
                                         // MaterialStatePropertyAll(Colors.white),
-                                        foregroundColor:
-                                            MaterialStatePropertyAll(
-                                                Colors.blue),
+                                        // foregroundColor:
+                                        //     MaterialStatePropertyAll(
+                                        //         Colors.blue),
                                         shape: MaterialStatePropertyAll(
                                             RoundedRectangleBorder(
                                                 borderRadius:

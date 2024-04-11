@@ -129,24 +129,27 @@ class _AllocateVehicleToDeliveryBatchState
                   }
                 }
               },
-              child: Card(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.lightBlue,
-                        foregroundColor: Colors.white,
-                        child: Text(deliveryBatch.id.toString().toUpperCase()),
-                      ),
-                      title: Text("To: ${deliveryBatch.address}"),
-                      subtitle: (deliveryBatch.vehicle != null)
-                          ? Text(
-                              '${deliveryBatch.vehicle!.type}: ${deliveryBatch.vehicle!.licensePlate}')
-                          : const Text('No vehicle assigned'),
-                      trailing: const Icon(Icons.chevron_right_sharp),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: const Border.fromBorderSide(
+                      BorderSide(color: Colors.grey),
                     ),
-                  ],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      foregroundColor: Colors.white,
+                      child: Text(deliveryBatch.id.toString().toUpperCase()),
+                    ),
+                    title: Text("To: ${deliveryBatch.address}"),
+                    subtitle: (deliveryBatch.vehicle != null)
+                        ? Text(
+                            '${deliveryBatch.vehicle!.type}: ${deliveryBatch.vehicle!.licensePlate}')
+                        : const Text('No vehicle assigned'),
+                    trailing: const Icon(Icons.chevron_right_sharp),
+                  ),
                 ),
               ),
             ),

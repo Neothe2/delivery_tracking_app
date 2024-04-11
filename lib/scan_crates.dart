@@ -87,6 +87,9 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            SizedBox(
+              height: 10,
+            ),
             OutlinedButton(
                 onPressed: () {
                   setState(() {
@@ -111,9 +114,9 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
                             scan(crateIdTextController.value.text);
                           },
                           child: const Text('Enter')),
-                      const SizedBox(
-                        height: 50,
-                      ),
+                      // const SizedBox(
+                      //   height: 50,
+                      // ),
                     ],
                   )
                 : SizedBox(
@@ -146,7 +149,10 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
               child: Card(
                 shape: LinearBorder(),
                 child: Padding(
-                  padding: const EdgeInsets.all(20.0),
+                  padding: (text)
+                      ? const EdgeInsets.only(
+                          bottom: 20, left: 20, right: 20, top: 20)
+                      : const EdgeInsets.all(20.0),
                   child: Text(
                     correctionText,
                     style: TextStyle(fontSize: 25),
@@ -155,9 +161,13 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
                 ),
               ),
             ),
-            SizedBox(
-              height: 50,
-            ),
+            (text)
+                ? SizedBox(
+                    height: 10,
+                  )
+                : SizedBox(
+                    height: 50,
+                  ),
             Text(
               '${scannedCrates.length}/${widget.crateList.length}',
               style: TextStyle(fontSize: 40),

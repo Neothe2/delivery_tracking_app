@@ -92,16 +92,24 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
                   getDeliveryBatches();
                 }
               },
-              child: Card(
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.lightBlue,
-                    foregroundColor: Colors.white,
-                    child: Text(deliveryBatch.id.toString().toUpperCase()),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: const Border.fromBorderSide(
+                      BorderSide(color: Colors.grey),
+                    ),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  title: Text("To: ${deliveryBatch.customer.name}"),
-                  subtitle: Text(deliveryBatch.address),
-                  trailing: const Icon(Icons.chevron_right_sharp),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      foregroundColor: Colors.white,
+                      child: Text(deliveryBatch.id.toString().toUpperCase()),
+                    ),
+                    title: Text("To: ${deliveryBatch.customer.name}"),
+                    subtitle: Text(deliveryBatch.address),
+                    trailing: const Icon(Icons.chevron_right_sharp),
+                  ),
                 ),
               ),
             ),
