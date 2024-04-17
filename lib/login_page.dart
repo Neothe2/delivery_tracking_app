@@ -60,7 +60,10 @@ class _LoginPageState extends State<LoginPage> {
                   return null;
                 },
               ),
-              ElevatedButton(
+              SizedBox(
+                height: 20,
+              ),
+              OutlinedButton(
                 onPressed: () async {
                   // Validate returns true if the form is valid, otherwise false.
                   if (_formKey.currentState!.validate()) {
@@ -84,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _login() async {
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.68.121:8000/auth/jwt/create/'),
+        Uri.parse('http://10.0.2.2:80/auth/jwt/create/'),
         // Ensure the port is specified if needed.
         // Uri.parse('http://10.0.2.2:8000/auth/jwt/create'),
         // Ensure the port is specified if needed.
@@ -118,7 +121,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   navigateToHomePage(String accessKey) {
-    Navigator.of(context).push(MaterialPageRoute(
+    Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (context) => HomePage(
               accessToken: accessKey,
             )));

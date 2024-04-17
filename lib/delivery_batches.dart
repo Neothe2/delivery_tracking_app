@@ -50,8 +50,8 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
   }
 
   Customer parseCustomer(Map<String, dynamic> customerJson) {
-    return Customer(customerJson['id'], customerJson['name'],
-        customerJson['contact_details']);
+    return Customer(
+        customerJson['id'], customerJson['name'], customerJson['phone_number']);
   }
 
   Vehicle? parseVehicle(Map<String, dynamic>? vehicleData) {

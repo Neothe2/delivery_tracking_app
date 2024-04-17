@@ -76,38 +76,55 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(10.0),
-                    child: Card(
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 15.0, top: 15),
-                            child: Text(
-                              'Crates',
-                              style: TextStyle(
-                                  fontSize: 25,
-                                  decoration: TextDecoration.underline),
+                    child: Padding(
+                      padding: const EdgeInsets.all(0.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: const Border.fromBorderSide(
+                            BorderSide(color: Colors.grey),
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 15.0, top: 15),
+                              child: Text(
+                                'Crates',
+                                style: TextStyle(
+                                    fontSize: 25,
+                                    decoration: TextDecoration.underline),
+                              ),
                             ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.all(10),
-                            height: 200,
-                            child: SelectableListView(
-                                checkboxes: true,
-                                items: selectableListViewList,
-                                onSelectionChanged:
-                                    (List<dynamic> selectionChanged) {
-                                  selectedCrateIds = selectionChanged.map((e) {
-                                    return (e.crateId as String);
-                                  }).toList();
-                                }),
-                          ),
-                        ],
+                            Container(
+                              padding: EdgeInsets.all(10),
+                              height: 200,
+                              child: SelectableListView(
+                                  checkboxes: true,
+                                  items: selectableListViewList,
+                                  onSelectionChanged:
+                                      (List<dynamic> selectionChanged) {
+                                    selectedCrateIds =
+                                        selectionChanged.map((e) {
+                                      return (e.crateId as String);
+                                    }).toList();
+                                  }),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: Card(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: const Border.fromBorderSide(
+                          BorderSide(color: Colors.grey),
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextField(
@@ -120,7 +137,13 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(10.0),
-                    child: Card(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: const Border.fromBorderSide(
+                          BorderSide(color: Colors.grey),
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       child: Column(
                         children: [
                           Padding(
@@ -214,8 +237,8 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
   }
 
   Customer parseCustomer(Map<String, dynamic> customerJson) {
-    return Customer(customerJson['id'], customerJson['name'],
-        customerJson['contact_details']);
+    return Customer(
+        customerJson['id'], customerJson['name'], customerJson['phone_number']);
   }
 }
 

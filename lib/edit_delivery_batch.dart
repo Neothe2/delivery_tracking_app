@@ -95,7 +95,7 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Delivery Batch'),
+        title: const Text('Edit Delivery Batch'),
       ),
       resizeToAvoidBottomInset: true,
       body: cratesLoaded
@@ -104,7 +104,13 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(10.0),
-                    child: Card(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: const Border.fromBorderSide(
+                          BorderSide(color: Colors.grey),
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       child: Column(
                         children: [
                           Padding(
@@ -139,7 +145,13 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
                   ),
                   Padding(
                     padding: EdgeInsets.all(10.0),
-                    child: Card(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: const Border.fromBorderSide(
+                          BorderSide(color: Colors.grey),
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextField(
@@ -152,7 +164,13 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(10.0),
-                    child: Card(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: const Border.fromBorderSide(
+                          BorderSide(color: Colors.grey),
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       child: Column(
                         children: [
                           const Padding(
@@ -258,8 +276,8 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
   }
 
   Customer parseCustomer(Map<String, dynamic> customerJson) {
-    return Customer(customerJson['id'], customerJson['name'],
-        customerJson['contact_details']);
+    return Customer(
+        customerJson['id'], customerJson['name'], customerJson['phone_number']);
   }
 }
 

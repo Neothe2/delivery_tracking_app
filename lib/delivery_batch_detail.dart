@@ -51,7 +51,13 @@ class _DeliveryBatchDetailState extends State<DeliveryBatchDetail> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(10.0),
-                    child: Card(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: const Border.fromBorderSide(
+                          BorderSide(color: Colors.grey),
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       child: Column(
                         children: [
                           Padding(
@@ -85,7 +91,13 @@ class _DeliveryBatchDetailState extends State<DeliveryBatchDetail> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(10.0),
-                    child: Card(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: const Border.fromBorderSide(
+                          BorderSide(color: Colors.grey),
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
@@ -114,7 +126,13 @@ class _DeliveryBatchDetailState extends State<DeliveryBatchDetail> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(10.0),
-                    child: Card(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: const Border.fromBorderSide(
+                          BorderSide(color: Colors.grey),
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
@@ -148,7 +166,13 @@ class _DeliveryBatchDetailState extends State<DeliveryBatchDetail> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(10.0),
-                    child: Card(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: const Border.fromBorderSide(
+                          BorderSide(color: Colors.grey),
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
@@ -196,7 +220,10 @@ class _DeliveryBatchDetailState extends State<DeliveryBatchDetail> {
               );
 
               setState(() {
-                widget.deliveryBatch = response;
+                if (response is DeliveryBatch) {
+                  widget.deliveryBatch = response;
+                }
+
                 cratesLoaded = true;
                 // widget.deliveryBatch.crates = response;
               });

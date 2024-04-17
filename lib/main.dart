@@ -67,7 +67,7 @@ class ColorsManager {
   static Color primary = Colors.black87;
   static Color accent = Colors.lightBlue;
   static Color white = Colors.white;
-  static Color offWhite = const Color(0xFFFAF9F6);
+  static Color offWhite = Colors.white;
   static Color error = Colors.red;
 
   static Color getShade(Color color, {bool darker = false, double value = .1}) {

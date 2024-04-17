@@ -70,24 +70,27 @@ class _SelectVehiclePageState extends State<SelectVehiclePage> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(10.0),
-                    child: Card(
-                      child: Container(
-                        padding: EdgeInsets.all(10),
-                        height: 450,
-                        child: SelectableListView(
-                            checkboxes: true,
-                            radioButtons: true,
-                            preSelectedValues: (preselectedvalue != null)
-                                ? [preselectedvalue]
-                                : [],
-                            items: selectableListViewList,
-                            onSelectionChanged:
-                                (List<dynamic> selectionChanged) {
-                              selectedVehicleId = (selectionChanged.isNotEmpty)
-                                  ? selectionChanged[0].id
-                                  : -1;
-                            }),
+                    child: Container(
+                      padding: EdgeInsets.all(10),
+                      height: 450,
+                      decoration: BoxDecoration(
+                        border: const Border.fromBorderSide(
+                          BorderSide(color: Colors.grey),
+                        ),
+                        borderRadius: BorderRadius.circular(10),
                       ),
+                      child: SelectableListView(
+                          checkboxes: true,
+                          radioButtons: true,
+                          preSelectedValues: (preselectedvalue != null)
+                              ? [preselectedvalue]
+                              : [],
+                          items: selectableListViewList,
+                          onSelectionChanged: (List<dynamic> selectionChanged) {
+                            selectedVehicleId = (selectionChanged.isNotEmpty)
+                                ? selectionChanged[0].id
+                                : -1;
+                          }),
                     ),
                   ),
                   Padding(
