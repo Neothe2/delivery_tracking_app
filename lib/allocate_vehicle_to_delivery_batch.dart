@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:delivery_tracking_app/error_modal.dart';
 import 'package:delivery_tracking_app/http_service.dart';
 import 'package:delivery_tracking_app/select_vehicle.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,6 @@ class _AllocateVehicleToDeliveryBatchState
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getDeliveryBatches();
   }
@@ -121,7 +121,9 @@ class _AllocateVehicleToDeliveryBatchState
                     {"id": deliveryBatch.id},
                   );
                   if (response.statusCode == 400) {
-                    //TODO: Implement error handling
+                    showError(
+                        "You don't have enough subscribed vehicles. Contact your administrator to but more subscribed vehicles.",
+                        context);
                   }
                   if (response.statusCode == 200) {
                     deliveryBatches = [];

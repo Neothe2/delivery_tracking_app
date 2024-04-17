@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:delivery_tracking_app/error_modal.dart';
 import 'package:delivery_tracking_app/http_service.dart';
 import 'package:delivery_tracking_app/select_vehicle.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,6 @@ class _AssignDriverToVehiclePageState extends State<AssignDriverToVehiclePage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getDrivers();
   }
@@ -111,7 +111,7 @@ class _AssignDriverToVehiclePageState extends State<AssignDriverToVehiclePage> {
                     {"id": driver.id},
                   );
                   if (response.statusCode == 400) {
-                    //TODO: Implement error handling
+                    showError("An error occurred.", context);
                   }
                   if (response.statusCode == 200) {
                     drivers = [];

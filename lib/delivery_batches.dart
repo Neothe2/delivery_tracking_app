@@ -17,7 +17,6 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getDeliveryBatches();
   }
