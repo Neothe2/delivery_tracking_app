@@ -1,6 +1,7 @@
 // login_page.dart
 import 'dart:convert';
 
+import 'package:delivery_tracking_app/error_modal.dart';
 import 'package:delivery_tracking_app/home.dart';
 import 'package:delivery_tracking_app/http_service.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool loading = false;
 
   @override
   void dispose() {
@@ -63,20 +65,22 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(
                 height: 20,
               ),
-              OutlinedButton(
-                onPressed: () async {
-                  // Validate returns true if the form is valid, otherwise false.
-                  if (_formKey.currentState!.validate()) {
-                    // If the form is valid, display a Snackbar.
-                    // ScaffoldMessenger.of(context).showSnackBar(
-                    //   SnackBar(content: Text('Processing Data')),
-                    // );
-                    await _login();
-                    // Here you can call your login method
-                  }
-                },
-                child: Text('Login'),
-              ),
+              (loading)
+                  ? const CircularProgressIndicator()
+                  : OutlinedButton(
+                      onPressed: () async {
+                        // Validate returns true if the form is valid, otherwise false.
+                        if (_formKey.currentState!.validate()) {
+                          // If the form is valid, display a Snackbar.
+                          // ScaffoldMessenger.of(context).showSnackBar(
+                          //   SnackBar(content: Text('Processing Data')),
+                          // );
+                          await _login();
+                          // Here you can call your login method
+                        }
+                      },
+                      child: Text('Login'),
+                    ),
             ],
           ),
         ),
@@ -86,8 +90,11 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _login() async {
     try {
+      setState(() {
+        loading = true;
+      });
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:80/auth/jwt/create/'),
+        Uri.parse('http://108.181.201.104:80/auth/jwt/create/'),
         // Ensure the port is specified if needed.
         // Uri.parse('http://10.0.2.2:8000/auth/jwt/create'),
         // Ensure the port is specified if needed.
@@ -109,10 +116,17 @@ class _LoginPageState extends State<LoginPage> {
 
         // Navigate to the next screen with Navigator.pushReplacement()
       } else {
-        // If the server did not return a 200 OK response,
-        // then throw an exception.
+        showError(
+            'The username is password is incorrect (both are case sensitive, make sure to correct your capital letters)',
+            context);
+        setState(() {
+          loading = false;
+        });
         throw Exception('Failed to load token');
       }
+      setState(() {
+        loading = false;
+      });
     } catch (e) {
       // If any exception occurs, print it to the console and handle it.
       print('Exception occurred: $e');

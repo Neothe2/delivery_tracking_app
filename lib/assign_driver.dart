@@ -5,7 +5,6 @@ import 'package:delivery_tracking_app/http_service.dart';
 import 'package:delivery_tracking_app/select_vehicle.dart';
 import 'package:flutter/material.dart';
 
-import 'add_delivery_batch.dart';
 import 'delivery_batches.dart';
 
 class AssignDriverToVehiclePage extends StatefulWidget {
@@ -43,10 +42,10 @@ class _AssignDriverToVehiclePageState extends State<AssignDriverToVehiclePage> {
     return Driver(driver['id'], driver['contact']['name'], currentVehicle);
   }
 
-  Customer parseCustomer(Map<String, dynamic> customerJson) {
-    return Customer(
-        customerJson['id'], customerJson['name'], customerJson['phone_number']);
-  }
+  // Customer parseCustomer(Map<String, dynamic> customerJson) {
+  //   return Customer(
+  //       customerJson['id'], customerJson['name'], customerJson['phone_number']);
+  // }
 
   Vehicle? parseVehicle(Map<String, dynamic>? vehicleData) {
     if (vehicleData != null) {

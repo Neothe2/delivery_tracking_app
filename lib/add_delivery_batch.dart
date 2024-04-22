@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:delivery_tracking_app/delivery_batches.dart';
 import 'package:delivery_tracking_app/http_service.dart';
+import 'package:delivery_tracking_app/scan_invividual_crate.dart';
 import 'package:delivery_tracking_app/searchable_list.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +20,7 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
   List<String> selectedCrateIds = [];
   int selectedCustomerId = -1;
   TextEditingController addressFieldController = TextEditingController();
+  SelectableListView? selectableListView;
 
   @override
   void initState() {
@@ -87,32 +89,97 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
                         ),
                         child: Column(
                           children: [
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 15.0, top: 15),
-                              child: Text(
-                                'Crates',
-                                style: TextStyle(
-                                    fontSize: 25,
-                                    decoration: TextDecoration.underline),
-                              ),
-                            ),
                             Container(
                               padding: EdgeInsets.all(10),
-                              height: 200,
-                              child: SelectableListView(
-                                  checkboxes: true,
-                                  items: selectableListViewList,
-                                  onSelectionChanged:
-                                      (List<dynamic> selectionChanged) {
-                                    selectedCrateIds =
-                                        selectionChanged.map((e) {
-                                      return (e.crateId as String);
-                                    }).toList();
-                                  }),
-                            ),
+                              height: 400,
+                              child: StatefulBuilder(
+                                builder: (context, setState) {
+                                  selectableListView = SelectableListView(
+                                    checkboxes: true,
+                                    items: selectableListViewList,
+                                    onSelectionChanged:
+                                        (List<dynamic> selectionChanged) {
+                                      selectedCrateIds =
+                                          selectionChanged.map((e) {
+                                        return (e.crateId as String);
+                                      }).toList();
+                                    },
+                                    title: 'Crates',
+                                    extraButton: ElevatedButton(
+                                      onPressed: () async {
+                                        var result =
+                                            await Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (cxt) =>
+                                                ScanIndividualCrate(
+                                              crateList: crateList,
+                                            ),
+                                          ),
+                                        );
+
+                                        if (result is Crate) {
+                                          if (!selectedCrateIds
+                                              .contains(result.crateId)) {
+                                            // selectedCrateIds
+                                            //     .add(result.crateId);
+                                            selectableListView!
+                                                .selectionStreamController
+                                                .add(result);
+                                          }
+                                        }
+                                      },
+                                      style: ButtonStyle(
+                                        shape: MaterialStatePropertyAll(
+                                          RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                          ),
+                                        ),
+                                      ),
+                                      child: const SizedBox(
+                                          width: 999,
+                                          child: Text('Tap to Scan Crate')),
+                                    ),
+                                  );
+
+                                  return selectableListView!;
+                                },
+                              ),
+                            )
                           ],
                         ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: const Border.fromBorderSide(
+                          BorderSide(color: Colors.grey),
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(10),
+                            height: 400,
+                            child: SelectableListView(
+                              checkboxes: true,
+                              radioButtons: true,
+                              items: selectableCustomerListViewList,
+                              onSelectionChanged:
+                                  (List<dynamic> selectionChanged) {
+                                selectedCustomerId =
+                                    (selectionChanged.isNotEmpty)
+                                        ? selectionChanged[0].id
+                                        : -1;
+                              },
+                              title: 'Customer',
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -132,45 +199,6 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
                           decoration:
                               InputDecoration(labelText: "Delivery Address"),
                         ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: const Border.fromBorderSide(
-                          BorderSide(color: Colors.grey),
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 15.0, top: 15),
-                            child: Text(
-                              'Customer',
-                              style: TextStyle(
-                                  fontSize: 25,
-                                  decoration: TextDecoration.underline),
-                            ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.all(10),
-                            height: 200,
-                            child: SelectableListView(
-                                checkboxes: true,
-                                radioButtons: true,
-                                items: selectableCustomerListViewList,
-                                onSelectionChanged:
-                                    (List<dynamic> selectionChanged) {
-                                  selectedCustomerId =
-                                      (selectionChanged.isNotEmpty)
-                                          ? selectionChanged[0].id
-                                          : -1;
-                                }),
-                          ),
-                        ],
                       ),
                     ),
                   ),
@@ -206,7 +234,7 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
                 ],
               ),
             )
-          : const Text('Loading...'),
+          : Center(child: const CircularProgressIndicator()),
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.clear), label: 'Cancel'),
@@ -238,7 +266,22 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
 
   Customer parseCustomer(Map<String, dynamic> customerJson) {
     return Customer(
-        customerJson['id'], customerJson['name'], customerJson['phone_number']);
+        customerJson['id'],
+        customerJson['name'],
+        customerJson['phone_number'],
+        parseAddresses(customerJson['addresses']));
+  }
+
+  List<Address> parseAddresses(List<Map<String, dynamic>> addressJsonList) {
+    List<Address> returnList = [];
+    for (var address in addressJsonList) {
+      returnList.add(parseAddress(address));
+    }
+    return returnList;
+  }
+
+  Address parseAddress(Map<String, dynamic> addressJson) {
+    return Address(addressJson['id'], addressJson['value']);
   }
 }
 
@@ -246,6 +289,14 @@ class Customer {
   int id;
   String name;
   String contactDetails;
+  List<Address> addresses;
 
-  Customer(this.id, this.name, this.contactDetails);
+  Customer(this.id, this.name, this.contactDetails, this.addresses);
+}
+
+class Address {
+  int id;
+  String value;
+
+  Address(this.id, this.value);
 }

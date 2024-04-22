@@ -55,7 +55,22 @@ class _AllocateVehicleToDeliveryBatchState
 
   Customer parseCustomer(Map<String, dynamic> customerJson) {
     return Customer(
-        customerJson['id'], customerJson['name'], customerJson['phone_number']);
+        customerJson['id'],
+        customerJson['name'],
+        customerJson['phone_number'],
+        parseAddresses(customerJson['addresses']));
+  }
+
+  List<Address> parseAddresses(List<Map<String, dynamic>> addressJsonList) {
+    List<Address> returnList = [];
+    for (var address in addressJsonList) {
+      returnList.add(parseAddress(address));
+    }
+    return returnList;
+  }
+
+  Address parseAddress(Map<String, dynamic> addressJson) {
+    return Address(addressJson['id'], addressJson['value']);
   }
 
   Vehicle? parseVehicle(Map<String, dynamic>? vehicleData) {

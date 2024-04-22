@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:native_barcode_scanner/barcode_scanner.dart';
+import 'package:vibration/vibration.dart';
 
 import 'delivery_batches.dart';
 
@@ -28,9 +28,18 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
   String correctionText = 'Enter the Crate ID';
   bool text = false;
 
+  vibrateBad() async {
+    Vibration.vibrate(duration: 1000, amplitude: 255);
+    // await Future.delayed(const Duration(milliseconds: 100));
+    // Vibration.vibrate(duration: 500, amplitude: 255);
+    // await Future.delayed(const Duration(milliseconds: 100));
+    // Vibration.vibrate(duration: 500, amplitude: 255);
+  }
+
   @override
   void initState() {
     super.initState();
+    vibrateBad();
     progressBarValueForOneUnit = 1 / widget.crateList.length;
     setState(() {
       remainingCrates = [...widget.crateList];
@@ -39,19 +48,21 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
 
   scan(String text) {
     String crateId = text;
+
     crateIdTextController.text = '';
     Crate? scannedCrate = getCrateByIdOrNull(crateId, remainingCrates);
     if (scannedCrate == null) {
       scannedCrate = getCrateByIdOrNull(crateId, scannedCrates);
       if (scannedCrate == null) {
         setState(() {
-          HapticFeedback.heavyImpact();
           correctionText = 'Incorrect Crate';
           return;
         });
       } else {
         setState(() {
-          HapticFeedback.heavyImpact();
+          Vibration.vibrate(
+              pattern: [100, 500, 100, 500, 100, 500], amplitude: 255);
+
           correctionText = 'Already Scanned';
           return;
         });
@@ -126,9 +137,9 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20)),
                       child: BarcodeScannerWidget(
+                        scannerType: ScannerType.barcode,
                         onError: (e) {},
                         onBarcodeDetected: (Barcode barcode) {
-                          HapticFeedback.vibrate();
                           scan(barcode.value);
                           if (remainingCrates.isNotEmpty) {
                             BarcodeScanner.startScanner();

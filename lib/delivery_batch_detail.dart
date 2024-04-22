@@ -60,30 +60,22 @@ class _DeliveryBatchDetailState extends State<DeliveryBatchDetail> {
                       ),
                       child: Column(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 15.0, top: 15),
-                            child: Text(
-                              'Crates',
-                              style: TextStyle(
-                                  fontSize: 25,
-                                  decoration: TextDecoration.underline),
-                            ),
-                          ),
                           Container(
                             padding: EdgeInsets.symmetric(horizontal: 10),
-                            constraints:
-                                BoxConstraints(maxHeight: 280, minHeight: 200),
+                            height: 400,
                             child: SelectableListView(
-                                checkboxes: false,
-                                items: selectableListViewList,
-                                onSelectionChanged:
-                                    (List<dynamic> selectionChanged) {
-                                  for (var crate in selectionChanged) {
-                                    if (crate is Crate) {
-                                      print(crate.crateId);
-                                    }
+                              checkboxes: false,
+                              items: selectableListViewList,
+                              onSelectionChanged:
+                                  (List<dynamic> selectionChanged) {
+                                for (var crate in selectionChanged) {
+                                  if (crate is Crate) {
+                                    print(crate.crateId);
                                   }
-                                }),
+                                }
+                              },
+                              title: 'Crates',
+                            ),
                           ),
                         ],
                       ),

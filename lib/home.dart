@@ -30,6 +30,8 @@ class _HomePageState extends State<HomePage> {
 
   bool isVehicleTapped = false;
 
+  bool loading = false;
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -267,8 +269,8 @@ class _HomePageState extends State<HomePage> {
                                       RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(10)))),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
+                              child: const Padding(
+                                padding: EdgeInsets.all(16.0),
                                 child: Text(
                                   'Go to Unloading Page',
                                   style: TextStyle(fontSize: 20),
@@ -277,6 +279,54 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                     ],
+
+                    if (driver != null &&
+                        driverLoaded &&
+                        cratesToBeLoaded.isNotEmpty &&
+                        driver!.currentVehicle!.isLoaded == true)
+                      Padding(
+                        padding: EdgeInsets.only(top: 10),
+                        child: OutlinedButton(
+                          onPressed: () async {
+                            var loadUpdateResponse = await HttpService()
+                                .partial_update(
+                                    'app/vehicles/${driver!.currentVehicle!.id}/',
+                                    {"is_loaded": false});
+                            print(loadUpdateResponse.body);
+
+                            if (loadUpdateResponse.statusCode == 200) {
+                              var scanCratesResponse =
+                                  await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (cxt) => ScanCratesPage(
+                                    title: 'Load Crates',
+                                    afterScanningFinished: () {
+                                      afterScanningFinished();
+                                    },
+                                    crateList: cratesToBeLoaded,
+                                  ),
+                                ),
+                              );
+                            }
+
+                            getGroup(navigate: false);
+                            //navigateToUnloadDashboard
+                          },
+                          style: ButtonStyle(
+                              shape: MaterialStatePropertyAll(
+                                  RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(10)))),
+                          child: const Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Text(
+                              'Reload Crates',
+                              style: TextStyle(fontSize: 20),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
                     if (driver != null)
                       (cratesToBeLoaded.isNotEmpty)
                           ? SizedBox(height: 182)

@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 class HttpService {
   static final HttpService _instance = HttpService._internal();
   final String _baseUrl =
-      "http://192.168.68.121:8000"; // Replace with your actual base URL
+      "http://108.181.201.104:80"; // Replace with your actual base URL
   String _accessToken = ""; // Replace with your actual initial access token
 
   factory HttpService() {
@@ -44,6 +44,12 @@ class HttpService {
       String endpoint, Map<String, dynamic> body) async {
     final url = Uri.parse('$_baseUrl/$endpoint');
     return await http.put(url, headers: _headers, body: json.encode(body));
+  }
+
+  Future<http.Response> partial_update(
+      String endpoint, Map<String, dynamic> body) async {
+    final url = Uri.parse('$_baseUrl/$endpoint');
+    return await http.patch(url, headers: _headers, body: json.encode(body));
   }
 
   Future<http.Response> delete(String endpoint) async {

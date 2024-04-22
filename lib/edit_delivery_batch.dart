@@ -113,31 +113,62 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
                       ),
                       child: Column(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 15.0, top: 15),
-                            child: Text(
-                              'Crates',
-                              style: TextStyle(
-                                  fontSize: 25,
-                                  decoration: TextDecoration.underline),
-                            ),
-                          ),
                           Container(
                             padding: EdgeInsets.all(10),
-                            height: 200,
+                            height: 400,
                             child: SelectableListView(
-                                checkboxes: true,
-                                preSelectedValues: preselectedCrates,
-                                items: selectableListViewList,
-                                onSelectionChanged:
-                                    (List<dynamic> selectionChanged) {
-                                  selectedCrates = selectionChanged
-                                      .map((e) => (e as Crate))
-                                      .toList();
-                                  selectedCrateIds = selectionChanged.map((e) {
-                                    return (e.crateId as String);
-                                  }).toList();
-                                }),
+                              checkboxes: true,
+                              preSelectedValues: preselectedCrates,
+                              items: selectableListViewList,
+                              onSelectionChanged:
+                                  (List<dynamic> selectionChanged) {
+                                selectedCrates = selectionChanged
+                                    .map((e) => (e as Crate))
+                                    .toList();
+                                selectedCrateIds = selectionChanged.map((e) {
+                                  return (e.crateId as String);
+                                }).toList();
+                              },
+                              title: 'Crates',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: const Border.fromBorderSide(
+                          BorderSide(color: Colors.grey),
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(10),
+                            height: 400,
+                            child: SelectableListView(
+                              checkboxes: true,
+                              radioButtons: true,
+                              preSelectedValues: preselectedCustomer != null
+                                  ? [preselectedCustomer]
+                                  : [],
+                              items: selectableCustomerListViewList,
+                              onSelectionChanged:
+                                  (List<dynamic> selectionChanged) {
+                                selectedCustomer = (selectionChanged.isNotEmpty)
+                                    ? selectionChanged[0]
+                                    : null;
+                                selectedCustomerId =
+                                    (selectionChanged.isNotEmpty)
+                                        ? selectionChanged[0].id
+                                        : -1;
+                              },
+                              title: 'Customer',
+                            ),
                           ),
                         ],
                       ),
@@ -159,52 +190,6 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
                           decoration:
                               InputDecoration(labelText: "Delivery Address"),
                         ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: const Border.fromBorderSide(
-                          BorderSide(color: Colors.grey),
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Column(
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.only(left: 15.0, top: 15),
-                            child: Text(
-                              'Customer',
-                              style: TextStyle(
-                                  fontSize: 25,
-                                  decoration: TextDecoration.underline),
-                            ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.all(10),
-                            height: 200,
-                            child: SelectableListView(
-                                checkboxes: true,
-                                radioButtons: true,
-                                preSelectedValues: preselectedCustomer != null
-                                    ? [preselectedCustomer]
-                                    : [],
-                                items: selectableCustomerListViewList,
-                                onSelectionChanged:
-                                    (List<dynamic> selectionChanged) {
-                                  selectedCustomer =
-                                      (selectionChanged.isNotEmpty)
-                                          ? selectionChanged[0]
-                                          : null;
-                                  selectedCustomerId =
-                                      (selectionChanged.isNotEmpty)
-                                          ? selectionChanged[0].id
-                                          : -1;
-                                }),
-                          ),
-                        ],
                       ),
                     ),
                   ),
@@ -277,7 +262,22 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
 
   Customer parseCustomer(Map<String, dynamic> customerJson) {
     return Customer(
-        customerJson['id'], customerJson['name'], customerJson['phone_number']);
+        customerJson['id'],
+        customerJson['name'],
+        customerJson['phone_number'],
+        parseAddresses(customerJson['addresses']));
+  }
+
+  List<Address> parseAddresses(List<Map<String, dynamic>> addressJsonList) {
+    List<Address> returnList = [];
+    for (var address in addressJsonList) {
+      returnList.add(parseAddress(address));
+    }
+    return returnList;
+  }
+
+  Address parseAddress(Map<String, dynamic> addressJson) {
+    return Address(addressJson['id'], addressJson['value']);
   }
 }
 

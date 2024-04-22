@@ -1,11 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 class SelectableListView extends StatefulWidget {
   final List<MapEntry<String, dynamic>> items;
   final List<dynamic> preSelectedValues;
   final Function(List<dynamic>) onSelectionChanged;
+  final StreamController<dynamic> selectionStreamController =
+      StreamController<dynamic>();
   final bool checkboxes;
   final bool radioButtons;
+  final String title;
+  final ElevatedButton? extraButton;
 
   SelectableListView(
       {Key? key,
@@ -13,7 +19,9 @@ class SelectableListView extends StatefulWidget {
       required this.onSelectionChanged,
       required this.checkboxes,
       this.radioButtons = false,
-      this.preSelectedValues = const []})
+      this.preSelectedValues = const [],
+      required this.title,
+      this.extraButton})
       : super(key: key);
 
   @override
@@ -21,6 +29,7 @@ class SelectableListView extends StatefulWidget {
 }
 
 class _SelectableListViewState extends State<SelectableListView> {
+  List<MapEntry<String, dynamic>> allItems = [];
   List<MapEntry<String, dynamic>> filteredItems = [];
   List<dynamic> selectedValues = [];
   dynamic selectedValue;
@@ -33,6 +42,29 @@ class _SelectableListViewState extends State<SelectableListView> {
         ? widget.preSelectedValues[0]
         : null;
     filteredItems = widget.items;
+    allItems = widget.items;
+
+    widget.selectionStreamController.stream.listen((dynamic value) {
+      if (widget.radioButtons) {
+        for (var element in allItems) {
+          if (element.value == value) {
+            setState(() {
+              selectedValue = element.value;
+              widget.onSelectionChanged([selectedValue]);
+            });
+          }
+        }
+      } else if (widget.checkboxes) {
+        for (var element in allItems) {
+          if (element.value == value) {
+            setState(() {
+              selectedValues.add(element.value);
+              widget.onSelectionChanged(selectedValues);
+            });
+          }
+        }
+      }
+    });
   }
 
   void _searchItems(String enteredKeyword) {
@@ -55,16 +87,23 @@ class _SelectableListViewState extends State<SelectableListView> {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
+        ListTile(
+          leading: Text(
+            '${widget.title}:',
+            style: TextStyle(fontSize: 25, fontWeight: FontWeight.normal),
+          ),
+          title: TextField(
             onChanged: (value) => _searchItems(value),
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: 'Search',
               suffixIcon: Icon(Icons.search),
             ),
           ),
         ),
+        if (widget.extraButton != null)
+          ListTile(
+            title: widget.extraButton!,
+          ),
         Expanded(
           child: (filteredItems.length > 0)
               ? (widget.radioButtons)
@@ -126,5 +165,11 @@ class _SelectableListViewState extends State<SelectableListView> {
         ),
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    widget.selectionStreamController.close();
   }
 }

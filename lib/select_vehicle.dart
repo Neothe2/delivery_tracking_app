@@ -80,17 +80,19 @@ class _SelectVehiclePageState extends State<SelectVehiclePage> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: SelectableListView(
-                          checkboxes: true,
-                          radioButtons: true,
-                          preSelectedValues: (preselectedvalue != null)
-                              ? [preselectedvalue]
-                              : [],
-                          items: selectableListViewList,
-                          onSelectionChanged: (List<dynamic> selectionChanged) {
-                            selectedVehicleId = (selectionChanged.isNotEmpty)
-                                ? selectionChanged[0].id
-                                : -1;
-                          }),
+                        checkboxes: true,
+                        radioButtons: true,
+                        preSelectedValues: (preselectedvalue != null)
+                            ? [preselectedvalue]
+                            : [],
+                        items: selectableListViewList,
+                        onSelectionChanged: (List<dynamic> selectionChanged) {
+                          selectedVehicleId = (selectionChanged.isNotEmpty)
+                              ? selectionChanged[0].id
+                              : -1;
+                        },
+                        title: 'Vehicle',
+                      ),
                     ),
                   ),
                   Padding(
