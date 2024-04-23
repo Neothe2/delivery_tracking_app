@@ -25,6 +25,7 @@ class _AssignDriverToVehiclePageState extends State<AssignDriverToVehiclePage> {
   }
 
   getDrivers() async {
+    drivers = [];
     var response = await HttpService().get('app/drivers/');
     var decodedBody = jsonDecode(response.body);
     // setState(() {
@@ -65,85 +66,90 @@ class _AssignDriverToVehiclePageState extends State<AssignDriverToVehiclePage> {
       appBar: AppBar(
         title: const Text('Choose driver to assign vehicle to'),
       ),
-      body: ListView.builder(
-        itemCount: drivers.length,
-        itemBuilder: (context, index) {
-          final driver = drivers[index];
-          return GestureDetector(
-            onTap: () async {
-              // var response = await Navigator.of(context).push(
-              //   MaterialPageRoute(
-              //     builder: (cxt) => ContactDetailPage(
-              //       contact: deliveryBatch,
-              //     ),
-              //   ),
-              // );
-              // if (response is FormResponse) {
-              //   if (response.type == ResponseType.delete) {
-              //     setState(() {
-              //       contacts.remove(response.body);
-              //     });
-              //   } else if (response.type == ResponseType.edit) {
-              //     setState(() {
-              //       var index = contacts.indexOf(deliveryBatch);
-              //       contacts[index] = response.body;
-              //     });
-              //   }
-              // }
-            },
-            child: GestureDetector(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await getDrivers();
+        },
+        child: ListView.builder(
+          itemCount: drivers.length,
+          itemBuilder: (context, index) {
+            final driver = drivers[index];
+            return GestureDetector(
               onTap: () async {
-                int? preselectedVehicle = (driver.currentVehicle != null)
-                    ? driver.currentVehicle!.id
-                    : null;
-                var selectedVehicleId = await Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (cxt) {
-                      return SelectVehiclePage(
-                          preSelectedTruckId: preselectedVehicle);
-                    },
-                  ),
-                );
-                if (selectedVehicleId != null && selectedVehicleId != -1) {
-                  var response = await HttpService().create(
-                    'app/vehicles/$selectedVehicleId/assign_driver/',
-                    {"id": driver.id},
-                  );
-                  if (response.statusCode == 400) {
-                    showError("An error occurred.", context);
-                  }
-                  if (response.statusCode == 200) {
-                    drivers = [];
-                    getDrivers();
-                  }
-                }
+                // var response = await Navigator.of(context).push(
+                //   MaterialPageRoute(
+                //     builder: (cxt) => ContactDetailPage(
+                //       contact: deliveryBatch,
+                //     ),
+                //   ),
+                // );
+                // if (response is FormResponse) {
+                //   if (response.type == ResponseType.delete) {
+                //     setState(() {
+                //       contacts.remove(response.body);
+                //     });
+                //   } else if (response.type == ResponseType.edit) {
+                //     setState(() {
+                //       var index = contacts.indexOf(deliveryBatch);
+                //       contacts[index] = response.body;
+                //     });
+                //   }
+                // }
               },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: const Border.fromBorderSide(
-                      BorderSide(color: Colors.grey),
+              child: GestureDetector(
+                onTap: () async {
+                  int? preselectedVehicle = (driver.currentVehicle != null)
+                      ? driver.currentVehicle!.id
+                      : null;
+                  var selectedVehicleId = await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (cxt) {
+                        return SelectVehiclePage(
+                            preSelectedTruckId: preselectedVehicle);
+                      },
                     ),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      foregroundColor: Colors.white,
-                      child: Text(driver.id.toString().toUpperCase()),
+                  );
+                  if (selectedVehicleId != null && selectedVehicleId != -1) {
+                    var response = await HttpService().create(
+                      'app/vehicles/$selectedVehicleId/assign_driver/',
+                      {"id": driver.id},
+                    );
+                    if (response.statusCode == 400) {
+                      showError("An error occurred.", context);
+                    }
+                    if (response.statusCode == 200) {
+                      drivers = [];
+                      getDrivers();
+                    }
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: const Border.fromBorderSide(
+                        BorderSide(color: Colors.grey),
+                      ),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    title: Text(driver.name),
-                    subtitle: (driver.currentVehicle != null)
-                        ? Text(
-                            '${driver.currentVehicle!.type}: ${driver.currentVehicle!.licensePlate}')
-                        : const Text('No vehicle assigned'),
-                    trailing: const Icon(Icons.chevron_right_sharp),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        foregroundColor: Colors.white,
+                        child: Text(driver.id.toString().toUpperCase()),
+                      ),
+                      title: Text(driver.name),
+                      subtitle: (driver.currentVehicle != null)
+                          ? Text(
+                              '${driver.currentVehicle!.type}: ${driver.currentVehicle!.licensePlate}')
+                          : const Text('No vehicle assigned'),
+                      trailing: const Icon(Icons.chevron_right_sharp),
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

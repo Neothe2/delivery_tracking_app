@@ -107,65 +107,70 @@ class _DriverUnloadDashBoardState extends State<DriverUnloadDashBoard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Select batch to unload'),
+        title: const Text('Select batch to unload'),
       ),
-      body: ListView.builder(
-        itemCount: deliveryBatches.length,
-        itemBuilder: (context, index) {
-          final deliveryBatch = deliveryBatches[index];
-          return GestureDetector(
-            onTap: () async {},
-            child: GestureDetector(
-              onTap: () async {
-                var response = await Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (cxt) => ScanCratesPage(
-                      crateList: deliveryBatch.crates,
-                      title: "Unload crates from delivery batch",
-                      afterScanningFinished: () async {
-                        var unloadResponse = await HttpService().update(
-                          'app/vehicles/${widget.driver.currentVehicle!.id}/unload_delivery_batch/',
-                          {"id": deliveryBatch.id},
-                        );
-                        if (unloadResponse.statusCode == 200) {
-                          await getDeliveryBatches();
-                        }
-                        Navigator.pop(context);
-                      },
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await getDeliveryBatches();
+        },
+        child: ListView.builder(
+          itemCount: deliveryBatches.length,
+          itemBuilder: (context, index) {
+            final deliveryBatch = deliveryBatches[index];
+            return GestureDetector(
+              onTap: () async {},
+              child: GestureDetector(
+                onTap: () async {
+                  var response = await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (cxt) => ScanCratesPage(
+                        crateList: deliveryBatch.crates,
+                        title: "Unload crates from delivery batch",
+                        afterScanningFinished: () async {
+                          var unloadResponse = await HttpService().update(
+                            'app/vehicles/${widget.driver.currentVehicle!.id}/unload_delivery_batch/',
+                            {"id": deliveryBatch.id},
+                          );
+                          if (unloadResponse.statusCode == 200) {
+                            await getDeliveryBatches();
+                          }
+                          Navigator.pop(context);
+                        },
+                      ),
                     ),
-                  ),
-                );
-                if (response == true) {
-                  setState(() {
-                    deliveryBatches = [];
-                  });
-                  getDeliveryBatches();
-                }
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: const Border.fromBorderSide(
-                      BorderSide(color: Colors.grey),
+                  );
+                  if (response == true) {
+                    setState(() {
+                      deliveryBatches = [];
+                    });
+                    getDeliveryBatches();
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: const Border.fromBorderSide(
+                        BorderSide(color: Colors.grey),
+                      ),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      // backgroundColor: Colors.lightBlue,
-                      foregroundColor: Colors.white,
-                      child: Text(deliveryBatch.id.toString().toUpperCase()),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        // backgroundColor: Colors.lightBlue,
+                        foregroundColor: Colors.white,
+                        child: Text(deliveryBatch.id.toString().toUpperCase()),
+                      ),
+                      title: Text("To: ${deliveryBatch.customer.name}"),
+                      subtitle: Text(deliveryBatch.address.value),
+                      trailing: const Icon(Icons.chevron_right_sharp),
                     ),
-                    title: Text("To: ${deliveryBatch.customer.name}"),
-                    subtitle: Text(deliveryBatch.address.value),
-                    trailing: const Icon(Icons.chevron_right_sharp),
                   ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

@@ -18,6 +18,7 @@ class _SelectVehiclePageState extends State<SelectVehiclePage> {
   List<Vehicle> vehicleList = [];
   bool vehiclesLoaded = false;
   int selectedVehicleId = -1;
+  bool selectClicked = false;
 
   @override
   void initState() {
@@ -68,6 +69,11 @@ class _SelectVehiclePageState extends State<SelectVehiclePage> {
           ? SingleChildScrollView(
               child: Column(
                 children: [
+                  Visibility(
+                    visible: (selectedVehicleId == -1 && selectClicked),
+                    child: const Text("Please select a vehicle",
+                        style: TextStyle(color: Colors.red)),
+                  ),
                   Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: Container(
@@ -99,7 +105,14 @@ class _SelectVehiclePageState extends State<SelectVehiclePage> {
                     padding: const EdgeInsets.all(10.10),
                     child: OutlinedButton(
                       onPressed: () async {
-                        Navigator.pop(context, selectedVehicleId);
+                        if (selectedVehicleId != -1) {
+                          Navigator.pop(context, selectedVehicleId);
+                        } else {
+                          setState(() {
+                            selectClicked = true;
+                          });
+                        }
+
                         // DeliveryBatch deliveryBatch =
                         //     parseDeliveryBatch(response.body);
                       },

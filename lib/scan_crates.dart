@@ -29,7 +29,6 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
   bool text = false;
 
   vibrateBad() async {
-    Vibration.vibrate(duration: 1000, amplitude: 255);
     // await Future.delayed(const Duration(milliseconds: 100));
     // Vibration.vibrate(duration: 500, amplitude: 255);
     // await Future.delayed(const Duration(milliseconds: 100));
@@ -46,7 +45,7 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
     });
   }
 
-  scan(String text) {
+  scan(String text) async {
     String crateId = text;
 
     crateIdTextController.text = '';
@@ -54,14 +53,15 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
     if (scannedCrate == null) {
       scannedCrate = getCrateByIdOrNull(crateId, scannedCrates);
       if (scannedCrate == null) {
+        Vibration.vibrate(
+            pattern: [250, 500, 250, 500, 250, 500], amplitude: 50);
         setState(() {
           correctionText = 'Incorrect Crate';
           return;
         });
       } else {
         setState(() {
-          Vibration.vibrate(
-              pattern: [100, 500, 100, 500, 100, 500], amplitude: 255);
+          Vibration.vibrate(pattern: [250, 500, 250, 500], amplitude: 50);
 
           correctionText = 'Already Scanned';
           return;
@@ -69,6 +69,7 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
       }
     } else {
       setState(() {
+        Vibration.vibrate(duration: 100, amplitude: 10);
         correctionText = 'Correct';
         remainingCrates.remove(scannedCrate!);
         scannedCrates.add(scannedCrate);

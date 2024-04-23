@@ -6,6 +6,8 @@ import 'package:delivery_tracking_app/scan_invividual_crate.dart';
 import 'package:delivery_tracking_app/searchable_list.dart';
 import 'package:flutter/material.dart';
 
+import 'error_modal.dart';
+
 class AddDeliveryBatch extends StatefulWidget {
   const AddDeliveryBatch({super.key});
 
@@ -22,6 +24,11 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
   TextEditingController addressFieldController = TextEditingController();
   SelectableListView? selectableListView;
   Address? selectedAddress;
+  bool isCustomerSelected = false;
+  bool areCratesSelected = false;
+  bool isAddressSelected = false;
+  bool addClicked = false;
+  GlobalKey addressKey = GlobalKey();
 
   @override
   void initState() {
@@ -77,6 +84,11 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
           ? SingleChildScrollView(
               child: Column(
                 children: [
+                  Visibility(
+                    visible: (!areCratesSelected && addClicked),
+                    child: Text("Please select a crate",
+                        style: TextStyle(color: Colors.red)),
+                  ),
                   Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: Padding(
@@ -104,6 +116,11 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
                                           selectionChanged.map((e) {
                                         return (e.crateId as String);
                                       }).toList();
+
+                                      setState(() {
+                                        areCratesSelected =
+                                            selectionChanged.isNotEmpty;
+                                      });
                                     },
                                     title: 'Crates',
                                     extraButton: ElevatedButton(
@@ -152,6 +169,11 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
                       ),
                     ),
                   ),
+                  Visibility(
+                    visible: (!isCustomerSelected && addClicked),
+                    child: Text("Please select a customer",
+                        style: TextStyle(color: Colors.red)),
+                  ),
                   Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: Container(
@@ -178,6 +200,8 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
                                         : -1;
 
                                 setState(() {
+                                  isCustomerSelected =
+                                      selectionChanged.isNotEmpty;
                                   selectedAddress = null;
                                 });
                               },
@@ -187,6 +211,11 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
                         ],
                       ),
                     ),
+                  ),
+                  Visibility(
+                    visible: (!isAddressSelected && addClicked),
+                    child: Text("Please select an address",
+                        style: TextStyle(color: Colors.red)),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(10.0),
@@ -200,6 +229,7 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: DropdownButton<Address>(
+                          key: addressKey,
                           isExpanded: true,
                           hint: Text("Select Delivery Address"),
                           value: selectedAddress,
@@ -216,6 +246,7 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
                           onChanged: (value) {
                             setState(() {
                               selectedAddress = value;
+                              isAddressSelected = value != null;
                             });
                           },
                         ),
@@ -275,7 +306,28 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
                   "customer": selectedCustomerId,
                   "delivery_address": selectedAddress!.id
                 });
+                if (response.statusCode == 400) {
+                  if (jsonDecode(response.body)['delivery_address'] != null) {
+                    await showError(
+                        jsonDecode(response.body)['delivery_address'][0],
+                        context);
+                  }
+                }
                 Navigator.pop(context, true);
+              } else {
+                setState(() {
+                  addClicked = true;
+                });
+                if (selectedAddress == null) {
+                  final targetContext = addressKey.currentContext;
+                  if (targetContext != null) {
+                    Scrollable.ensureVisible(
+                      targetContext,
+                      duration: const Duration(milliseconds: 400),
+                      curve: Curves.easeInOut,
+                    );
+                  }
+                }
               }
 
             case 0:

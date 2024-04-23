@@ -6,6 +6,7 @@ import 'package:delivery_tracking_app/searchable_list.dart';
 import 'package:flutter/material.dart';
 
 import 'add_delivery_batch.dart';
+import 'error_modal.dart';
 
 class EditDeliveryBatch extends StatefulWidget {
   final DeliveryBatch deliveryBatch;
@@ -282,6 +283,14 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
                   "customer": selectedCustomerId,
                   "delivery_address": selectedAddress!.id
                 });
+
+                if (response.statusCode == 400) {
+                  if (jsonDecode(response.body)['delivery_address'] != null) {
+                    await showError(
+                        jsonDecode(response.body)['delivery_address'][0],
+                        context);
+                  }
+                }
                 print(jsonDecode(response.body));
                 widget.deliveryBatch.crates = selectedCrates;
                 widget.deliveryBatch.customer = selectedCustomer;
