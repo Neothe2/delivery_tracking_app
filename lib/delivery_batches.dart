@@ -44,7 +44,7 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
       crates,
       parseVehicle(deliveryBatch['vehicle']),
       parseCustomer(deliveryBatch['customer']),
-      deliveryBatch['delivery_address'],
+      parseAddress(deliveryBatch['delivery_address']),
     );
   }
 
@@ -56,7 +56,7 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
         parseAddresses(customerJson['addresses']));
   }
 
-  List<Address> parseAddresses(List<Map<String, dynamic>> addressJsonList) {
+  List<Address> parseAddresses(List<dynamic> addressJsonList) {
     List<Address> returnList = [];
     for (var address in addressJsonList) {
       returnList.add(parseAddress(address));
@@ -121,7 +121,7 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
                       child: Text(deliveryBatch.id.toString().toUpperCase()),
                     ),
                     title: Text("To: ${deliveryBatch.customer.name}"),
-                    subtitle: Text(deliveryBatch.address),
+                    subtitle: Text(deliveryBatch.address.value),
                     trailing: const Icon(Icons.chevron_right_sharp),
                   ),
                 ),
@@ -182,7 +182,7 @@ class DeliveryBatch {
   List<Crate> crates;
   Vehicle? vehicle;
   Customer customer;
-  String address;
+  Address address;
 
   DeliveryBatch(
       this.id, this.crates, this.vehicle, this.customer, this.address);

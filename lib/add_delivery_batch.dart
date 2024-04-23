@@ -21,6 +21,7 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
   int selectedCustomerId = -1;
   TextEditingController addressFieldController = TextEditingController();
   SelectableListView? selectableListView;
+  Address? selectedAddress;
 
   @override
   void initState() {
@@ -175,6 +176,10 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
                                     (selectionChanged.isNotEmpty)
                                         ? selectionChanged[0].id
                                         : -1;
+
+                                setState(() {
+                                  selectedAddress = null;
+                                });
                               },
                               title: 'Customer',
                             ),
@@ -194,10 +199,25 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: TextField(
-                          controller: addressFieldController,
-                          decoration:
-                              InputDecoration(labelText: "Delivery Address"),
+                        child: DropdownButton<Address>(
+                          isExpanded: true,
+                          hint: Text("Select Delivery Address"),
+                          value: selectedAddress,
+                          items: (selectedCustomerId != -1)
+                              ? customerList
+                                  .firstWhere((customer) =>
+                                      customer.id == selectedCustomerId)
+                                  .getAddressesAsDropdownItems()
+                              : [
+                                  DropdownMenuItem(
+                                      value: null,
+                                      child: Text("Select customer first"))
+                                ],
+                          onChanged: (value) {
+                            setState(() {
+                              selectedAddress = value;
+                            });
+                          },
                         ),
                       ),
                     ),
@@ -246,12 +266,14 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
         onTap: (index) async {
           switch (index) {
             case 1:
-              if (selectedCustomerId != -1 && selectedCrateIds.isNotEmpty) {
+              if (selectedCustomerId != -1 &&
+                  selectedCrateIds.isNotEmpty &&
+                  selectedAddress != null) {
                 var response =
                     await HttpService().create('app/delivery_batches/', {
                   "crates": selectedCrateIds,
                   "customer": selectedCustomerId,
-                  "delivery_address": addressFieldController.value.text
+                  "delivery_address": selectedAddress!.id
                 });
                 Navigator.pop(context, true);
               }
@@ -269,10 +291,10 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
         customerJson['id'],
         customerJson['name'],
         customerJson['phone_number'],
-        parseAddresses(customerJson['addresses']));
+        parseAddresses((customerJson['addresses'])));
   }
 
-  List<Address> parseAddresses(List<Map<String, dynamic>> addressJsonList) {
+  List<Address> parseAddresses(List<dynamic> addressJsonList) {
     List<Address> returnList = [];
     for (var address in addressJsonList) {
       returnList.add(parseAddress(address));
@@ -292,6 +314,17 @@ class Customer {
   List<Address> addresses;
 
   Customer(this.id, this.name, this.contactDetails, this.addresses);
+
+  List<DropdownMenuItem<Address>> getAddressesAsDropdownItems() {
+    var list = addresses.map((address) {
+      return DropdownMenuItem<Address>(
+        value: address,
+        child: Text(address.value),
+      );
+    }).toList();
+
+    return list;
+  }
 }
 
 class Address {
@@ -299,4 +332,11 @@ class Address {
   String value;
 
   Address(this.id, this.value);
+
+  @override
+  operator ==(other) =>
+      other is Address && other.id == id && other.value == value;
+
+  @override
+  int get hashCode => Object.hash(id, value);
 }

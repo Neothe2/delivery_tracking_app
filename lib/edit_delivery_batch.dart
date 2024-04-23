@@ -25,18 +25,31 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
   int selectedCustomerId = -1;
   late Customer selectedCustomer;
   TextEditingController addressFieldController = TextEditingController();
+  Address? selectedAddress;
+  List<DropdownMenuItem<Address>> addressItems = [];
+  bool customersLoaded = false;
 
   @override
   void initState() {
     super.initState();
     selectedCustomer = widget.deliveryBatch.customer;
     selectedCrates = widget.deliveryBatch.crates;
+    for (var address in selectedCustomer.addresses) {
+      if (address.id == widget.deliveryBatch.address.id) {
+        selectedAddress = address;
+      }
+    }
     getCrates();
   }
 
   void getCrates() async {
-    var response = await HttpService().get('app/crates/');
+    var response =
+        await HttpService().get('app/crates/get_unallocated_crates/');
     var customerResponse = await HttpService().get('app/customers/');
+
+    for (var crate in widget.deliveryBatch.crates) {
+      crateList.add(crate);
+    }
 
     for (var crateJson in jsonDecode(response.body)) {
       crateList.add(
@@ -48,13 +61,18 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
       customerList.add(parseCustomer(customerJson));
     }
 
-    addressFieldController.text = widget.deliveryBatch.address;
+    addressFieldController.text = widget.deliveryBatch.address.value;
     selectedCustomerId = widget.deliveryBatch.customer.id;
     selectedCrateIds =
         widget.deliveryBatch.crates.map((e) => e.crateId).toList();
 
     setState(() {
       cratesLoaded = true;
+
+      addressItems = customerList
+          .firstWhere((customer) => customer.id == selectedCustomerId)
+          .getAddressesAsDropdownItems();
+      customersLoaded = true;
     });
   }
 
@@ -93,6 +111,7 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
         preselectedCustomer = customer;
       }
     }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Delivery Batch'),
@@ -166,6 +185,10 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
                                     (selectionChanged.isNotEmpty)
                                         ? selectionChanged[0].id
                                         : -1;
+
+                                setState(() {
+                                  selectedAddress = null;
+                                });
                               },
                               title: 'Customer',
                             ),
@@ -174,25 +197,38 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: const Border.fromBorderSide(
-                          BorderSide(color: Colors.grey),
+                  if (customersLoaded)
+                    Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: const Border.fromBorderSide(
+                            BorderSide(color: Colors.grey),
+                          ),
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextField(
-                          controller: addressFieldController,
-                          decoration:
-                              InputDecoration(labelText: "Delivery Address"),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: DropdownButton<Address>(
+                            isExpanded: true,
+                            hint: Text("Select Delivery Address"),
+                            value: selectedAddress,
+                            items: (selectedCustomerId != -1)
+                                ? addressItems
+                                : [
+                                    DropdownMenuItem(
+                                        value: null,
+                                        child: Text("Select customer first"))
+                                  ],
+                            onChanged: (value) {
+                              setState(() {
+                                selectedAddress = value;
+                              });
+                            },
+                          ),
                         ),
                       ),
                     ),
-                  ),
                   // Padding(
                   //   padding: const EdgeInsets.all(10.10),
                   //   child: Container(
@@ -237,18 +273,19 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
         onTap: (index) async {
           switch (index) {
             case 1:
-              if (selectedCustomerId != -1 && selectedCrateIds.isNotEmpty) {
+              if (selectedCustomerId != -1 &&
+                  selectedCrateIds.isNotEmpty &&
+                  selectedAddress != null) {
                 var response = await HttpService().update(
                     'app/delivery_batches/${widget.deliveryBatch.id}/', {
                   "crates": selectedCrateIds,
                   "customer": selectedCustomerId,
-                  "delivery_address": addressFieldController.value.text
+                  "delivery_address": selectedAddress!.id
                 });
                 print(jsonDecode(response.body));
                 widget.deliveryBatch.crates = selectedCrates;
                 widget.deliveryBatch.customer = selectedCustomer;
-                widget.deliveryBatch.address =
-                    addressFieldController.value.text;
+                widget.deliveryBatch.address = selectedAddress!;
                 Navigator.pop(context, widget.deliveryBatch);
               }
 
@@ -268,7 +305,7 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
         parseAddresses(customerJson['addresses']));
   }
 
-  List<Address> parseAddresses(List<Map<String, dynamic>> addressJsonList) {
+  List<Address> parseAddresses(List<dynamic> addressJsonList) {
     List<Address> returnList = [];
     for (var address in addressJsonList) {
       returnList.add(parseAddress(address));

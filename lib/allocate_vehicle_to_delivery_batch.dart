@@ -49,7 +49,7 @@ class _AllocateVehicleToDeliveryBatchState
       crates,
       parseVehicle(deliveryBatch['vehicle']),
       parseCustomer(deliveryBatch['customer']),
-      deliveryBatch['delivery_address'],
+      parseAddress(deliveryBatch['delivery_address']),
     );
   }
 
@@ -61,7 +61,7 @@ class _AllocateVehicleToDeliveryBatchState
         parseAddresses(customerJson['addresses']));
   }
 
-  List<Address> parseAddresses(List<Map<String, dynamic>> addressJsonList) {
+  List<Address> parseAddresses(List<dynamic> addressJsonList) {
     List<Address> returnList = [];
     for (var address in addressJsonList) {
       returnList.add(parseAddress(address));

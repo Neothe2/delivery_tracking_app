@@ -67,7 +67,7 @@ class _DriverUnloadDashBoardState extends State<DriverUnloadDashBoard> {
       crates,
       parseVehicle(deliveryBatch['vehicle']),
       parseCustomer(deliveryBatch['customer']),
-      deliveryBatch['delivery_address'],
+      parseAddress(deliveryBatch['delivery_address']),
     );
   }
 
@@ -79,7 +79,7 @@ class _DriverUnloadDashBoardState extends State<DriverUnloadDashBoard> {
         parseAddresses(customerJson['addresses']));
   }
 
-  List<Address> parseAddresses(List<Map<String, dynamic>> addressJsonList) {
+  List<Address> parseAddresses(List<dynamic> addressJsonList) {
     List<Address> returnList = [];
     for (var address in addressJsonList) {
       returnList.add(parseAddress(address));
@@ -158,7 +158,7 @@ class _DriverUnloadDashBoardState extends State<DriverUnloadDashBoard> {
                       child: Text(deliveryBatch.id.toString().toUpperCase()),
                     ),
                     title: Text("To: ${deliveryBatch.customer.name}"),
-                    subtitle: Text(deliveryBatch.address),
+                    subtitle: Text(deliveryBatch.address.value),
                     trailing: const Icon(Icons.chevron_right_sharp),
                   ),
                 ),

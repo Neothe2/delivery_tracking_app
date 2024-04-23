@@ -178,7 +178,7 @@ class _DeliveryBatchDetailState extends State<DeliveryBatchDetail> {
                             Container(
                               padding: EdgeInsets.symmetric(horizontal: 10),
                               constraints: BoxConstraints(minWidth: 999),
-                              child: Text(widget.deliveryBatch.address),
+                              child: Text(widget.deliveryBatch.address.value),
                             ),
                           ],
                         ),
