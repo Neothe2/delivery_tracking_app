@@ -5,6 +5,12 @@ import 'package:delivery_tracking_app/delivery_batches/delivery_batch_detail.dar
 import 'package:delivery_tracking_app/http_service.dart';
 import 'package:flutter/material.dart';
 
+import '../models/address.dart';
+import '../models/crate.dart';
+import '../models/customer.dart';
+import '../models/delivery_batch.dart';
+import '../models/vehicle.dart';
+
 class DeliveryBatchesPage extends StatefulWidget {
   const DeliveryBatchesPage({super.key});
 
@@ -166,30 +172,4 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
       ),
     );
   }
-}
-
-class Crate {
-  String crateId;
-
-  Crate(this.crateId);
-}
-
-class Vehicle {
-  int id;
-  String licensePlate;
-  String type;
-  bool isLoaded;
-
-  Vehicle(this.id, this.licensePlate, this.type, this.isLoaded);
-}
-
-class DeliveryBatch {
-  int id;
-  List<Crate> crates;
-  Vehicle? vehicle;
-  Customer customer;
-  Address address;
-
-  DeliveryBatch(
-      this.id, this.crates, this.vehicle, this.customer, this.address);
 }

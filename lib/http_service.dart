@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:delivery_tracking_app/login_page.dart';
 import 'package:http/http.dart' as http;
 
 class HttpService {
@@ -19,15 +20,18 @@ class HttpService {
     _accessToken = token;
   }
 
-  Map<String, String> get _headers => {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': 'JWT $_accessToken',
-      };
+  Future<Map<String, String>> get _headers async {
+    var accessToken = await SecureTokenStorage().read(key: 'access');
+    return {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'JWT $accessToken',
+    };
+  }
 
   Future<http.Response> get(String endpoint) async {
     final url = Uri.parse('$_baseUrl/$endpoint');
-    return await http.get(url, headers: _headers);
+    return await http.get(url, headers: await _headers);
   }
 
   Future<http.Response> getAll(String endpoint) async {
@@ -37,23 +41,26 @@ class HttpService {
   Future<http.Response> create(
       String endpoint, Map<String, dynamic> body) async {
     final url = Uri.parse('$_baseUrl/$endpoint');
-    return await http.post(url, headers: _headers, body: json.encode(body));
+    return await http.post(url,
+        headers: await _headers, body: json.encode(body));
   }
 
   Future<http.Response> update(
       String endpoint, Map<String, dynamic> body) async {
     final url = Uri.parse('$_baseUrl/$endpoint');
-    return await http.put(url, headers: _headers, body: json.encode(body));
+    return await http.put(url,
+        headers: await _headers, body: json.encode(body));
   }
 
   Future<http.Response> partial_update(
       String endpoint, Map<String, dynamic> body) async {
     final url = Uri.parse('$_baseUrl/$endpoint');
-    return await http.patch(url, headers: _headers, body: json.encode(body));
+    return await http.patch(url,
+        headers: await _headers, body: json.encode(body));
   }
 
   Future<http.Response> delete(String endpoint) async {
     final url = Uri.parse('$_baseUrl/$endpoint');
-    return await http.delete(url, headers: _headers);
+    return await http.delete(url, headers: await _headers);
   }
 }

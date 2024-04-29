@@ -5,7 +5,9 @@ import 'package:delivery_tracking_app/http_service.dart';
 import 'package:delivery_tracking_app/select_vehicle.dart';
 import 'package:flutter/material.dart';
 
-import 'delivery_batches/delivery_batches.dart';
+import 'models/crate.dart';
+import 'models/driver.dart';
+import 'models/vehicle.dart';
 
 class AssignDriverToVehiclePage extends StatefulWidget {
   const AssignDriverToVehiclePage({super.key});
@@ -153,12 +155,4 @@ class _AssignDriverToVehiclePageState extends State<AssignDriverToVehiclePage> {
       ),
     );
   }
-}
-
-class Driver {
-  int id;
-  String name;
-  Vehicle? currentVehicle;
-
-  Driver(this.id, this.name, this.currentVehicle);
 }

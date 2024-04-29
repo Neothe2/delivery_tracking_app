@@ -10,10 +10,15 @@ import 'package:delivery_tracking_app/login_page.dart';
 import 'package:delivery_tracking_app/scan_crates.dart';
 import 'package:flutter/material.dart';
 
-class HomePage extends StatefulWidget {
-  final accessToken;
+import 'colour_constants.dart';
+import 'models/contact.dart';
+import 'models/crate.dart';
+import 'models/driver.dart';
+import 'models/user.dart';
+import 'models/vehicle.dart';
 
-  const HomePage({super.key, required this.accessToken});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -23,7 +28,7 @@ class _HomePageState extends State<HomePage> {
   List<String> groups = [];
   String username = '...';
   late User user;
-  List<ListTile> listTiles = [];
+  List<Widget> listTiles = [];
   Driver? driver;
   bool driverLoaded = false;
   List<Crate> cratesToBeLoaded = [];
@@ -398,6 +403,19 @@ class _HomePageState extends State<HomePage> {
     //         .push(MaterialPageRoute(builder: (context) => ContactsPage()));
     //   });
     // }
+    listTiles.add(ListTile(
+      leading: CircleAvatar(
+        child: Text(user.contact.name[0]),
+      ),
+      title: Text(user.contact.name),
+    ));
+    listTiles.add(Divider(
+      height: 1,
+      color: ColorPalette.greenDarker,
+      thickness: 1,
+      indent: 10,
+      endIndent: 10,
+    ));
     if (groups.contains('billing_staff')) {
       addMenuItem('Delivery Batches', () {
         _scaffoldKey.currentState!.closeDrawer();
@@ -437,7 +455,15 @@ class _HomePageState extends State<HomePage> {
   logOut() {
     HttpService().setAccessToken("");
     Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (cxt) => LoginPage()));
+      context,
+      MaterialPageRoute(
+        builder: (cxt) => LoginPage(
+          JWTAuthenticationService(
+            SecureTokenStorage(),
+          ),
+        ),
+      ),
+    );
   }
 
   void driverDashBoard() {
@@ -452,19 +478,4 @@ class _HomePageState extends State<HomePage> {
       Navigator.pop(context);
     }
   }
-}
-
-class User {
-  int id;
-  String username;
-  Contact contact;
-
-  User(this.id, this.username, this.contact);
-}
-
-class Contact {
-  int id;
-  String name;
-
-  Contact(this.id, this.name);
 }

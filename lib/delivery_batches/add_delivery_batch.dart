@@ -1,12 +1,14 @@
 import 'dart:convert';
 
-import 'package:delivery_tracking_app/delivery_batches/delivery_batches.dart';
 import 'package:delivery_tracking_app/http_service.dart';
 import 'package:delivery_tracking_app/scan_invividual_crate.dart';
 import 'package:delivery_tracking_app/searchable_list.dart';
 import 'package:flutter/material.dart';
 
 import '../error_modal.dart';
+import '../models/address.dart';
+import '../models/crate.dart';
+import '../models/customer.dart';
 
 class AddDeliveryBatch extends StatefulWidget {
   const AddDeliveryBatch({super.key});
@@ -357,38 +359,4 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
   Address parseAddress(Map<String, dynamic> addressJson) {
     return Address(addressJson['id'], addressJson['value']);
   }
-}
-
-class Customer {
-  int id;
-  String name;
-  String contactDetails;
-  List<Address> addresses;
-
-  Customer(this.id, this.name, this.contactDetails, this.addresses);
-
-  List<DropdownMenuItem<Address>> getAddressesAsDropdownItems() {
-    var list = addresses.map((address) {
-      return DropdownMenuItem<Address>(
-        value: address,
-        child: Text(address.value),
-      );
-    }).toList();
-
-    return list;
-  }
-}
-
-class Address {
-  int id;
-  String value;
-
-  Address(this.id, this.value);
-
-  @override
-  operator ==(other) =>
-      other is Address && other.id == id && other.value == value;
-
-  @override
-  int get hashCode => Object.hash(id, value);
 }

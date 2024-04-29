@@ -21,10 +21,24 @@ class MyApp extends StatelessWidget {
           backgroundColor: ColorPalette.greenVibrant,
           foregroundColor: ColorPalette.greenDarkest, // Text color for app bar
         ),
-        textTheme: const TextTheme(
-          bodyMedium: TextStyle(color: ColorsManager.textColor),
-          // Apply text color to other text styles as needed
-        ),
+        textTheme: TextTheme(
+            bodyMedium: TextStyle(color: ColorsManager.textColor),
+            bodyLarge: TextStyle(color: ColorsManager.textColor),
+            bodySmall: TextStyle(color: ColorsManager.textColor),
+            displayLarge: TextStyle(color: ColorsManager.textColor),
+            displayMedium: TextStyle(color: ColorsManager.textColor),
+            displaySmall: TextStyle(color: ColorsManager.textColor),
+            headlineLarge: TextStyle(color: ColorsManager.textColor),
+            headlineMedium: TextStyle(color: ColorsManager.textColor),
+            headlineSmall: TextStyle(color: ColorsManager.textColor),
+            labelLarge: TextStyle(color: ColorsManager.textColor),
+            labelMedium: TextStyle(color: ColorsManager.textColor),
+            labelSmall: TextStyle(color: ColorsManager.textColor),
+            titleLarge: TextStyle(color: ColorsManager.textColor),
+            titleMedium: TextStyle(color: ColorsManager.textColor),
+            titleSmall: TextStyle(color: ColorsManager.textColor)
+            // Apply text color to other text styles as needed
+            ),
         inputDecorationTheme: const InputDecorationTheme(
             labelStyle: TextStyle(color: ColorsManager.textColor),
             enabledBorder: OutlineInputBorder(
@@ -52,7 +66,11 @@ class MyApp extends StatelessWidget {
           errorColor: ColorsManager.error,
         ),
       ),
-      home: LoginPage(), // Replace MyHomePage with LoginPage
+      home: LoginPage(
+        JWTAuthenticationService(
+          SecureTokenStorage(),
+        ),
+      ), // Replace MyHomePage with LoginPage
     );
   }
 }

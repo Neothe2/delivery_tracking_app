@@ -1,12 +1,15 @@
 import 'dart:convert';
 
-import 'package:delivery_tracking_app/assign_driver.dart';
-import 'package:delivery_tracking_app/delivery_batches/add_delivery_batch.dart';
 import 'package:delivery_tracking_app/http_service.dart';
 import 'package:delivery_tracking_app/scan_crates.dart';
 import 'package:flutter/material.dart';
 
-import 'delivery_batches/delivery_batches.dart';
+import 'models/address.dart';
+import 'models/crate.dart';
+import 'models/customer.dart';
+import 'models/delivery_batch.dart';
+import 'models/driver.dart';
+import 'models/vehicle.dart';
 
 class DriverUnloadDashBoard extends StatefulWidget {
   final Driver driver;

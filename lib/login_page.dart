@@ -9,6 +9,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 class LoginPage extends StatefulWidget {
+  final AuthenticationService authenticationService;
+
+  const LoginPage(this.authenticationService, {super.key});
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -97,21 +101,15 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         loading = true;
       });
-      final response = await http.post(
-        Uri.parse('http://108.181.201.104:80/auth/jwt/create/'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'username': _usernameController.text,
-          'password': _passwordController.text,
-        }),
-      );
+      bool success = await widget.authenticationService.login(
+          _usernameController.value.text, _passwordController.value.text);
 
-      if (response.statusCode == 200) {
+      if (success) {
         // If server returns an OK response, parse the JSON.
-        final data = json.decode(response.body);
-
-        HttpService().setAccessToken(data['access']);
-        navigateToHomePage(data['access']);
+        // final data = json.decode(response.body);
+        //
+        // HttpService().setAccessToken(data['access']);
+        navigateToHomePage();
 
         // Navigate to the next screen with Navigator.pushReplacement()
       } else {
@@ -133,50 +131,47 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  navigateToHomePage(String accessKey) {
+  navigateToHomePage() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => HomePage(
-          accessToken: accessKey,
-        ),
+        builder: (context) => const HomePage(),
       ),
     );
   }
 }
 
-class AuthenticationService {
+abstract interface class AuthenticationService {
+  Future<bool> login(String username, String password);
+}
+
+class JWTAuthenticationService implements AuthenticationService {
   final TokenStorage _storage;
 
-  AuthenticationService(this._storage);
+  JWTAuthenticationService(this._storage);
 
   Future<bool> login(String username, String password) async {
-    try {
-      final response = await http.post(
-        Uri.parse('http://108.181.201.104:80/auth/jwt/create/'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'username': username,
-          'password': password,
-        }),
-      );
+    final response = await http.post(
+      Uri.parse('http://108.181.201.104:80/auth/jwt/create/'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'username': username,
+        'password': password,
+      }),
+    );
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        HttpService().setAccessToken(data['access']);
-        _storage.write(key: 'access', value: data['access']);
-        _storage.write(key: 'refresh', value: data['refresh']);
-        return true;
-      } else {
-        return false;
-      }
-    } catch (e) {
-      print('Exception occurred: $e');
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      HttpService().setAccessToken(data['access']);
+      _storage.write(key: 'access', value: data['access']);
+      _storage.write(key: 'refresh', value: data['refresh']);
+      return true;
+    } else {
+      return false;
     }
-    return false;
   }
 }
 
-abstract class TokenStorage {
+abstract interface class TokenStorage {
   Future<void> write({required String key, required String value});
 
   Future<String?> read({required String key});
@@ -184,18 +179,21 @@ abstract class TokenStorage {
   Future<void> delete({required String key});
 }
 
-class StorageManager {
-  final _storage = FlutterSecureStorage();
+class SecureTokenStorage implements TokenStorage {
+  final _storage = const FlutterSecureStorage();
 
-  Future<void> saveToken(String key, String value) async {
+  @override
+  Future<void> write({required String key, required String value}) async {
     await _storage.write(key: key, value: value);
   }
 
-  Future<String?> readToken(String key) async {
+  @override
+  Future<String?> read({required String key}) async {
     return await _storage.read(key: key);
   }
 
-  Future<void> deleteToken(String key) async {
+  @override
+  Future<void> delete({required String key}) async {
     await _storage.delete(key: key);
   }
 }
