@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:delivery_tracking_app/add_delivery_batch.dart';
-import 'package:delivery_tracking_app/delivery_batch_detail.dart';
+import 'package:delivery_tracking_app/delivery_batches/add_delivery_batch.dart';
+import 'package:delivery_tracking_app/delivery_batches/delivery_batch_detail.dart';
 import 'package:delivery_tracking_app/http_service.dart';
 import 'package:flutter/material.dart';
 

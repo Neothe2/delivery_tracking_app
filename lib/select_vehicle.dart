@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:delivery_tracking_app/delivery_batches.dart';
+import 'package:delivery_tracking_app/delivery_batches/delivery_batches.dart';
 import 'package:delivery_tracking_app/http_service.dart';
 import 'package:delivery_tracking_app/searchable_list.dart';
 import 'package:flutter/material.dart';

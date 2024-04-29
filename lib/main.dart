@@ -1,4 +1,5 @@
 // main.dart
+import 'package:delivery_tracking_app/colour_constants.dart';
 import 'package:flutter/material.dart';
 
 import 'login_page.dart'; // Make sure to import login_page.dart here
@@ -15,24 +16,36 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
+        scaffoldBackgroundColor: ColorPalette.backgroundWhite,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: ColorPalette.greenVibrant,
+          foregroundColor: ColorPalette.greenDarkest, // Text color for app bar
+        ),
+        textTheme: const TextTheme(
+          bodyMedium: TextStyle(color: ColorsManager.textColor),
+          // Apply text color to other text styles as needed
+        ),
         inputDecorationTheme: const InputDecorationTheme(
+            labelStyle: TextStyle(color: ColorsManager.textColor),
             enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Colors.grey, // Set desired unfocused border color
-                width: 1.0, // Set desired unfocused border width
-              ),
+              borderSide: BorderSide(color: ColorsManager.borderColor),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Colors.grey, // Set desired unfocused border color
-                width: 1.0, // Set desired unfocused border width
-              ),
-            )),
-        outlinedButtonTheme: createOutlinedButtonTheme(),
-        primarySwatch: ColorsManager.primary.getMaterialColorFromColor(),
+              borderSide: BorderSide(color: ColorsManager.textColor),
+            ),
+            filled: true),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: ColorsManager.backgroundColor,
+            backgroundColor: ColorsManager.buttonColor,
+            // Text color on button
+            // side: BorderSide(color: ColorsManager.textColor),
+          ),
+        ),
+        primarySwatch: ColorsManager.primaryColor.getMaterialColorFromColor(),
         colorScheme: ColorScheme.fromSwatch(
-          primarySwatch: ColorsManager.primary.getMaterialColorFromColor(),
-          accentColor: ColorsManager.accent,
+          primarySwatch: ColorsManager.primaryColor.getMaterialColorFromColor(),
+          accentColor: ColorsManager.accentColor,
           backgroundColor: ColorsManager.white,
           brightness: Brightness.light,
           cardColor: ColorsManager.offWhite,
@@ -64,11 +77,19 @@ extension SuiizColors on Color {
 }
 
 class ColorsManager {
-  static Color primary = Colors.black87;
-  static Color accent = Colors.lightBlue;
+  // static Color primary = Colors.black87;
+  // static Color accent = Colors.lightBlue;
   static Color white = Colors.white;
   static Color offWhite = Colors.white;
   static Color error = Colors.red;
+
+  static const Color backgroundColor = ColorPalette.backgroundWhite;
+  static const Color primaryColor = ColorPalette.green; // Primary green
+  static const Color accentColor = ColorPalette.greenVibrant; // Darker green
+  static const Color textColor = ColorPalette.greenDarkest; // Dark text color
+  static const Color buttonColor = ColorPalette.greenDark;
+  static const Color borderColor = ColorPalette.greenDarker;
+  static const Color cream = ColorPalette.cream;
 
   static Color getShade(Color color, {bool darker = false, double value = .1}) {
     assert(value >= 0 && value <= 1, 'shade values must be between 0 and 1');
@@ -88,12 +109,12 @@ OutlinedButtonThemeData createOutlinedButtonTheme() {
     style: ButtonStyle(
       side: MaterialStateProperty.resolveWith<BorderSide>((states) {
         if (states.contains(MaterialState.focused)) {
-          return BorderSide(
+          return const BorderSide(
             color: Colors.blue, // Focused border color
             width: 2.0, // Focused border width
           );
         }
-        return BorderSide(
+        return const BorderSide(
           color: Colors.grey, // Unfocused border color
           width: 1.0, // Unfocused border width
         );

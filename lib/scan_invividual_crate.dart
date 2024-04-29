@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:native_barcode_scanner/barcode_scanner.dart';
 import 'package:vibration/vibration.dart';
 
-import 'delivery_batches.dart';
+import 'delivery_batches/delivery_batches.dart';
 
 class ScanIndividualCrate extends StatefulWidget {
   final List<Crate> crateList;

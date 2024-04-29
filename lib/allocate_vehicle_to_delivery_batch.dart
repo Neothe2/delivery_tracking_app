@@ -5,8 +5,8 @@ import 'package:delivery_tracking_app/http_service.dart';
 import 'package:delivery_tracking_app/select_vehicle.dart';
 import 'package:flutter/material.dart';
 
-import 'add_delivery_batch.dart';
-import 'delivery_batches.dart';
+import 'delivery_batches/add_delivery_batch.dart';
+import 'delivery_batches/delivery_batches.dart';
 
 class AllocateVehicleToDeliveryBatch extends StatefulWidget {
   const AllocateVehicleToDeliveryBatch({super.key});

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:delivery_tracking_app/allocate_vehicle_to_delivery_batch.dart';
 import 'package:delivery_tracking_app/assign_driver.dart';
-import 'package:delivery_tracking_app/delivery_batches.dart';
+import 'package:delivery_tracking_app/delivery_batches/delivery_batches.dart';
 import 'package:delivery_tracking_app/driver_dash_board.dart';
 import 'package:delivery_tracking_app/driver_unload_dashboard.dart';
 import 'package:delivery_tracking_app/http_service.dart';

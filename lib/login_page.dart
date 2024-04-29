@@ -5,6 +5,7 @@ import 'package:delivery_tracking_app/error_modal.dart';
 import 'package:delivery_tracking_app/home.dart';
 import 'package:delivery_tracking_app/http_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 class LoginPage extends StatefulWidget {
@@ -68,18 +69,21 @@ class _LoginPageState extends State<LoginPage> {
               (loading)
                   ? const CircularProgressIndicator()
                   : OutlinedButton(
+                      style: ButtonStyle(
+                          shape: MaterialStatePropertyAll(
+                              RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)))),
                       onPressed: () async {
-                        // Validate returns true if the form is valid, otherwise false.
                         if (_formKey.currentState!.validate()) {
-                          // If the form is valid, display a Snackbar.
-                          // ScaffoldMessenger.of(context).showSnackBar(
-                          //   SnackBar(content: Text('Processing Data')),
-                          // );
                           await _login();
-                          // Here you can call your login method
                         }
                       },
-                      child: Text('Login'),
+                      child: SizedBox(
+                          width: 100,
+                          child: Text(
+                            'Login',
+                            textAlign: TextAlign.center,
+                          )),
                     ),
             ],
           ),
@@ -95,9 +99,6 @@ class _LoginPageState extends State<LoginPage> {
       });
       final response = await http.post(
         Uri.parse('http://108.181.201.104:80/auth/jwt/create/'),
-        // Ensure the port is specified if needed.
-        // Uri.parse('http://10.0.2.2:8000/auth/jwt/create'),
-        // Ensure the port is specified if needed.
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'username': _usernameController.text,
@@ -108,9 +109,7 @@ class _LoginPageState extends State<LoginPage> {
       if (response.statusCode == 200) {
         // If server returns an OK response, parse the JSON.
         final data = json.decode(response.body);
-        // var storage = const FlutterSecureStorage();
-        // await SecureStorageSingleton.instance.writeSecureData('access_token', data['access']);
-        // AccessKey().key = data['access'];
+
         HttpService().setAccessToken(data['access']);
         navigateToHomePage(data['access']);
 
@@ -135,9 +134,68 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   navigateToHomePage(String accessKey) {
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
         builder: (context) => HomePage(
-              accessToken: accessKey,
-            )));
+          accessToken: accessKey,
+        ),
+      ),
+    );
+  }
+}
+
+class AuthenticationService {
+  final TokenStorage _storage;
+
+  AuthenticationService(this._storage);
+
+  Future<bool> login(String username, String password) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://108.181.201.104:80/auth/jwt/create/'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'username': username,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        HttpService().setAccessToken(data['access']);
+        _storage.write(key: 'access', value: data['access']);
+        _storage.write(key: 'refresh', value: data['refresh']);
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print('Exception occurred: $e');
+    }
+    return false;
+  }
+}
+
+abstract class TokenStorage {
+  Future<void> write({required String key, required String value});
+
+  Future<String?> read({required String key});
+
+  Future<void> delete({required String key});
+}
+
+class StorageManager {
+  final _storage = FlutterSecureStorage();
+
+  Future<void> saveToken(String key, String value) async {
+    await _storage.write(key: key, value: value);
+  }
+
+  Future<String?> readToken(String key) async {
+    return await _storage.read(key: key);
+  }
+
+  Future<void> deleteToken(String key) async {
+    await _storage.delete(key: key);
   }
 }

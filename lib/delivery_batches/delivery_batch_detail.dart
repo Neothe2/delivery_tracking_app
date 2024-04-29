@@ -1,9 +1,9 @@
-import 'package:delivery_tracking_app/delivery_batches.dart';
-import 'package:delivery_tracking_app/edit_delivery_batch.dart';
+import 'package:delivery_tracking_app/delivery_batches/delivery_batches.dart';
+import 'package:delivery_tracking_app/delivery_batches/edit_delivery_batch.dart';
 import 'package:delivery_tracking_app/searchable_list.dart';
 import 'package:flutter/material.dart';
 
-import 'http_service.dart';
+import '../http_service.dart';
 
 class DeliveryBatchDetail extends StatefulWidget {
   DeliveryBatch deliveryBatch;
