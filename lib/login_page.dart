@@ -24,6 +24,19 @@ class _LoginPageState extends State<LoginPage> {
   bool loading = false;
 
   @override
+  void initState() {
+    super.initState();
+    refresh();
+  }
+
+  refresh() async {
+    bool response = await widget.authenticationService.refreshIfPossible();
+    if (response != false) {
+      navigateToHomePage();
+    }
+  }
+
+  @override
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
@@ -142,12 +155,37 @@ class _LoginPageState extends State<LoginPage> {
 
 abstract interface class AuthenticationService {
   Future<bool> login(String username, String password);
+
+  Future<bool> refreshIfPossible();
 }
 
 class JWTAuthenticationService implements AuthenticationService {
   final TokenStorage _storage;
 
   JWTAuthenticationService(this._storage);
+
+  @override
+  Future<bool> refreshIfPossible() async {
+    String? refreshToken = await _storage.read(key: 'refresh');
+    if (refreshToken != null) {
+      final response = await http.post(
+        Uri.parse('http://108.181.201.104/auth/jwt/refresh'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: json.encode(
+          {"refresh": refreshToken},
+        ),
+      );
+      if (response.statusCode == 200) {
+        _storage.write(
+            key: 'access', value: json.decode(response.body)['access']);
+        return true;
+      }
+    }
+    return false;
+  }
 
   Future<bool> login(String username, String password) async {
     final response = await http.post(

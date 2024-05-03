@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:delivery_tracking_app/http_service.dart';
@@ -31,6 +32,8 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
   bool isAddressSelected = false;
   bool addClicked = false;
   GlobalKey addressKey = GlobalKey();
+  StreamController<dynamic> selectionStreamController =
+      StreamController<dynamic>();
 
   @override
   void initState() {
@@ -124,6 +127,8 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
                                             selectionChanged.isNotEmpty;
                                       });
                                     },
+                                    selectionStream:
+                                        selectionStreamController.stream,
                                     title: 'Crates',
                                     extraButton: ElevatedButton(
                                       onPressed: () async {
@@ -142,8 +147,7 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
                                               .contains(result.crateId)) {
                                             // selectedCrateIds
                                             //     .add(result.crateId);
-                                            selectableListView!
-                                                .selectionStreamController
+                                            selectionStreamController
                                                 .add(result);
                                           }
                                         }
@@ -358,5 +362,11 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
 
   Address parseAddress(Map<String, dynamic> addressJson) {
     return Address(addressJson['id'], addressJson['value']);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    selectionStreamController.close();
   }
 }

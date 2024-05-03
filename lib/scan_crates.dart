@@ -1,4 +1,6 @@
+import 'package:delivery_tracking_app/colour_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:native_barcode_scanner/barcode_scanner.dart';
 import 'package:vibration/vibration.dart';
 
@@ -25,15 +27,12 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
   List<Crate> remainingCrates = [];
   List<Crate> scannedCrates = [];
   double progressBarValue = 0;
-  String correctionText = 'Enter the Crate ID';
+  String correctionText = 'Scan the Crate QR';
   bool text = false;
+  Color backgroundColor = ColorPalette.backgroundWhite;
+  static const MethodChannel _channel = MethodChannel('vibration');
 
-  vibrateBad() async {
-    // await Future.delayed(const Duration(milliseconds: 100));
-    // Vibration.vibrate(duration: 500, amplitude: 255);
-    // await Future.delayed(const Duration(milliseconds: 100));
-    // Vibration.vibrate(duration: 500, amplitude: 255);
-  }
+  vibrateBad() async {}
 
   @override
   void initState() {
@@ -45,9 +44,26 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
     });
   }
 
+  static Future<void> vibrate({
+    int duration = 500,
+    List<int> pattern = const [],
+    int repeat = -1,
+    List<int> intensities = const [],
+    int amplitude = -1,
+  }) =>
+      _channel.invokeMethod(
+        "vibrate",
+        {
+          "duration": duration,
+          "pattern": pattern,
+          "repeat": repeat,
+          "amplitude": amplitude,
+          "intensities": intensities
+        },
+      );
+
   scan(String text) async {
     String crateId = text;
-
     crateIdTextController.text = '';
     Crate? scannedCrate = getCrateByIdOrNull(crateId, remainingCrates);
     if (scannedCrate == null) {
@@ -55,6 +71,7 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
       if (scannedCrate == null) {
         Vibration.vibrate(
             pattern: [250, 500, 250, 500, 250, 500], amplitude: 50);
+
         setState(() {
           correctionText = 'Incorrect Crate';
           return;
@@ -88,10 +105,24 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
     return null;
   }
 
+  // vibrate() {
+  //   _channel.invokeMethod(
+  //     "vibrate",
+  //     {
+  //       "duration": null,
+  //       "pattern": [250, 500, 250, 500, 250, 500],
+  //       "repeat": null,
+  //       "amplitude": 100,
+  //       "intensities": null
+  //     },
+  //   );
+  // }
+
   @override
   Widget build(BuildContext context) {
     print(widget.crateList);
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         title: const Text('Crates'),
       ),
@@ -99,37 +130,61 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
-            OutlinedButton(
+            SizedBox(
+              width: text ? 258 : 252,
+              child: OutlinedButton(
+                style: ButtonStyle(
+                  shape: MaterialStatePropertyAll(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(text ? 5 : 0),
+                    ),
+                  ),
+                  backgroundColor: MaterialStatePropertyAll(ColorPalette.green),
+                ),
                 onPressed: () {
                   setState(() {
+                    if (correctionText == 'Scan the Crate QR') {
+                      correctionText = 'Enter the Crate ID';
+                    } else if (correctionText == 'Enter the Crate ID') {
+                      correctionText = 'Scan the Crate QR';
+                    }
+
                     text = !text;
                   });
                 },
-                child:
-                    Text(text ? 'Scan QR code instead' : 'Enter Text instead')),
+                child: Text(
+                  text ? 'Scan QR code instead' : 'Enter Text instead',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
             (text)
-                ? Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 70.0, vertical: 10),
-                        child: TextField(
-                          controller: crateIdTextController,
-                          decoration: InputDecoration(labelText: "Crate ID"),
+                ? SizedBox(
+                    width: 256,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 0.0, vertical: 10),
+                          child: TextField(
+                            controller: crateIdTextController,
+                            decoration:
+                                const InputDecoration(labelText: "Crate ID"),
+                          ),
                         ),
-                      ),
-                      OutlinedButton(
-                          onPressed: () {
-                            scan(crateIdTextController.value.text);
-                          },
-                          child: const Text('Enter')),
-                      // const SizedBox(
-                      //   height: 50,
-                      // ),
-                    ],
+                        OutlinedButton(
+                            onPressed: () {
+                              scan(crateIdTextController.value.text);
+                            },
+                            child: const Text('Enter')),
+                        // const SizedBox(
+                        //   height: 50,
+                        // ),
+                      ],
+                    ),
                   )
                 : SizedBox(
                     height: 250,
@@ -140,7 +195,7 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
                       child: BarcodeScannerWidget(
                         scannerType: ScannerType.barcode,
                         onError: (e) {},
-                        onBarcodeDetected: (Barcode barcode) {
+                        onBarcodeDetected: (Barcode barcode) async {
                           scan(barcode.value);
                           if (remainingCrates.isNotEmpty) {
                             BarcodeScanner.startScanner();
@@ -159,7 +214,7 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
             SizedBox(
               width: 256,
               child: Card(
-                shape: LinearBorder(),
+                shape: const LinearBorder(),
                 child: Padding(
                   padding: (text)
                       ? const EdgeInsets.only(
@@ -167,39 +222,62 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
                       : const EdgeInsets.all(20.0),
                   child: Text(
                     correctionText,
-                    style: TextStyle(fontSize: 25),
+                    style: const TextStyle(
+                      fontSize: 25,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ),
               ),
             ),
             (text)
-                ? SizedBox(
+                ? const SizedBox(
                     height: 10,
                   )
-                : SizedBox(
+                : const SizedBox(
                     height: 50,
                   ),
             Text(
+              'Loaded Crates',
+              style: TextStyle(fontSize: 20),
+            ),
+            Text(
               '${scannedCrates.length}/${widget.crateList.length}',
-              style: TextStyle(fontSize: 40),
+              style: const TextStyle(fontSize: 40),
               textAlign: TextAlign.center,
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: (remainingCrates.isNotEmpty)
-                  ? LinearProgressIndicator(
-                      value: progressBarValueForOneUnit * scannedCrates.length,
-                      minHeight: 50,
-                      borderRadius: BorderRadius.circular(15),
+                  ? Container(
+                      decoration: BoxDecoration(
+                          border: const Border.fromBorderSide(
+                            BorderSide(
+                              color: ColorPalette.greenDarkest,
+                            ),
+                          ),
+                          borderRadius: BorderRadius.circular(15)),
+                      child: LinearProgressIndicator(
+                        value:
+                            progressBarValueForOneUnit * scannedCrates.length,
+                        minHeight: 40,
+                        borderRadius: BorderRadius.circular(15),
+                        backgroundColor: ColorPalette.cream,
+                      ),
                     )
                   : SizedBox(
                       width: 100000000,
+                      height: 40,
                       child: OutlinedButton(
-                          onPressed: () {
-                            widget.afterScanningFinished();
-                          },
-                          child: const Text('Finish')),
+                        style: ButtonStyle(
+                            shape: MaterialStatePropertyAll(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15)))),
+                        onPressed: () {
+                          widget.afterScanningFinished();
+                        },
+                        child: const Text('Finish'),
+                      ),
                     ),
             )
           ],

@@ -6,8 +6,7 @@ class SelectableListView extends StatefulWidget {
   final List<MapEntry<String, dynamic>> items;
   final List<dynamic> preSelectedValues;
   final Function(List<dynamic>) onSelectionChanged;
-  final StreamController<dynamic> selectionStreamController =
-      StreamController<dynamic>();
+  final Stream<dynamic>? selectionStream;
   final bool checkboxes;
   final bool radioButtons;
   final String title;
@@ -21,7 +20,8 @@ class SelectableListView extends StatefulWidget {
       this.radioButtons = false,
       this.preSelectedValues = const [],
       required this.title,
-      this.extraButton})
+      this.extraButton,
+      this.selectionStream})
       : super(key: key);
 
   @override
@@ -43,28 +43,29 @@ class _SelectableListViewState extends State<SelectableListView> {
         : null;
     filteredItems = widget.items;
     allItems = widget.items;
-
-    widget.selectionStreamController.stream.listen((dynamic value) {
-      if (widget.radioButtons) {
-        for (var element in allItems) {
-          if (element.value == value) {
-            setState(() {
-              selectedValue = element.value;
-              widget.onSelectionChanged([selectedValue]);
-            });
+    if (widget.selectionStream != null) {
+      widget.selectionStream!.listen((dynamic value) {
+        if (widget.radioButtons) {
+          for (var element in allItems) {
+            if (element.value == value) {
+              setState(() {
+                selectedValue = element.value;
+                widget.onSelectionChanged([selectedValue]);
+              });
+            }
+          }
+        } else if (widget.checkboxes) {
+          for (var element in allItems) {
+            if (element.value == value) {
+              setState(() {
+                selectedValues.add(element.value);
+                widget.onSelectionChanged(selectedValues);
+              });
+            }
           }
         }
-      } else if (widget.checkboxes) {
-        for (var element in allItems) {
-          if (element.value == value) {
-            setState(() {
-              selectedValues.add(element.value);
-              widget.onSelectionChanged(selectedValues);
-            });
-          }
-        }
-      }
-    });
+      });
+    }
   }
 
   void _searchItems(String enteredKeyword) {
@@ -170,6 +171,5 @@ class _SelectableListViewState extends State<SelectableListView> {
   @override
   void dispose() {
     super.dispose();
-    widget.selectionStreamController.close();
   }
 }
