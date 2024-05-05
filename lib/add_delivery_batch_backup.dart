@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:delivery_tracking_app/custom_bottom_bar.dart';
-import 'package:delivery_tracking_app/delivery_batches/select_crates_page.dart';
-import 'package:delivery_tracking_app/delivery_batches/select_customer_page.dart';
+import 'package:delivery_tracking_app/crates_list_widget.dart';
 import 'package:delivery_tracking_app/http_service.dart';
+import 'package:delivery_tracking_app/scan_crates_to_add.dart';
 import 'package:delivery_tracking_app/searchable_list.dart';
 import 'package:flutter/material.dart';
 
@@ -27,7 +26,6 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
   List<String> selectedCrateIds = [];
   List<Crate> selectedCrates = [];
   int selectedCustomerId = -1;
-  Customer? selectedCustomer;
   TextEditingController addressFieldController = TextEditingController();
   SelectableListView? selectableListView;
   Address? selectedAddress;
@@ -38,7 +36,6 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
   GlobalKey addressKey = GlobalKey();
   StreamController<List<Crate>> selectionStreamController =
       StreamController<List<Crate>>();
-  TextEditingController customerDropDownController = TextEditingController();
 
   @override
   void initState() {
@@ -79,10 +76,10 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
         )
         .toList();
 
-    List<DropdownMenuEntry<Customer>> selectableCustomerListViewList =
+    List<MapEntry<String, dynamic>> selectableCustomerListViewList =
         customerList
             .map(
-              (e) => DropdownMenuEntry(value: e, label: e.name),
+              (e) => MapEntry(e.name, e),
             )
             .toList();
     return Scaffold(
@@ -94,56 +91,120 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
           ? SingleChildScrollView(
               child: Column(
                 children: [
-                  SizedBox(
-                    width: 300,
-                    child: OutlinedButton(
-                        onPressed: () async {
-                          print('Navigating to Select Crates page');
-                          List<Crate>? response =
-                              await Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (cxt) => SelectCratesPage(
-                                crateList: crateList,
-                                initialCrates: selectedCrates,
-                              ),
-                            ),
-                          );
-
-                          if (response != null) {
-                            selectedCrates = response;
-                            selectedCrateIds =
-                                response.map((e) => e.crateId).toList();
-                          }
-                        },
-                        child: const Text('Select Crates')),
+                  Visibility(
+                    visible: (!areCratesSelected && addClicked),
+                    child: Text("Please select a crate",
+                        style: TextStyle(color: Colors.red)),
                   ),
-                  SizedBox(
-                    width: 300,
-                    child: OutlinedButton(
-                        onPressed: () async {
-                          print('Navigating to Select Customer page');
-                          List<dynamic>? response =
-                              await Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (cxt) => SelectCustomerPage(
-                                customerList: customerList,
-                                initialCustomer: selectedCustomer,
-                              ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(0.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: const Border.fromBorderSide(
+                            BorderSide(color: Colors.grey),
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(10),
+                              height: 400,
+                              child: CratesListWidget(
+                                  selectionStream:
+                                      selectionStreamController.stream,
+                                  validateCrate: (String crateId) {
+                                    for (var crate in crateList) {
+                                      if (crate.crateId == crateId) {
+                                        return crate;
+                                      }
+                                    }
+                                    return null;
+                                  },
+                                  onSelectionChanged: (List<Crate> crateList) {
+                                    selectedCrateIds = crateList
+                                        .map((e) => e.crateId)
+                                        .toList();
+                                    selectedCrates = crateList;
+
+                                    setState(() {
+                                      areCratesSelected = crateList.isNotEmpty;
+                                    });
+                                  },
+                                  scanCratePressed: () async {
+                                    var result =
+                                        await Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (cxt) => ScanCratesForAdd(
+                                          selectedCrateList: selectedCrates,
+                                          validate: (String crateId) {
+                                            for (var crate in crateList) {
+                                              if (crate.crateId == crateId) {
+                                                return crate;
+                                              }
+                                            }
+                                            return null;
+                                          },
+                                        ),
+                                      ),
+                                    );
+
+                                    // if (result is List<Crate>) {
+                                    selectionStreamController.add(result);
+                                    // selectedCrateIds.add(result.crateId);
+                                    // return result;
+                                    // }
+                                  }),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Visibility(
+                    visible: (!isCustomerSelected && addClicked),
+                    child: Text("Please select a customer",
+                        style: TextStyle(color: Colors.red)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: const Border.fromBorderSide(
+                          BorderSide(color: Colors.grey),
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(10),
+                            height: 400,
+                            child: SelectableListView(
+                              checkboxes: true,
+                              radioButtons: true,
+                              items: selectableCustomerListViewList,
+                              onSelectionChanged:
+                                  (List<dynamic> selectionChanged) {
+                                selectedCustomerId =
+                                    (selectionChanged.isNotEmpty)
+                                        ? selectionChanged[0].id
+                                        : -1;
+
+                                setState(() {
+                                  isCustomerSelected =
+                                      selectionChanged.isNotEmpty;
+                                  selectedAddress = null;
+                                });
+                              },
+                              title: 'Customer',
                             ),
-                          );
-
-                          if (response != null) {
-                            if (response[0] is Customer) {
-                              selectedCustomer = response[0];
-                              selectedCustomerId = response[0].id;
-
-                              setState(() {
-                                selectedAddress = null;
-                              });
-                            }
-                          }
-                        },
-                        child: const Text('Select Customer')),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   Visibility(
                     visible: (!isAddressSelected && addClicked),
@@ -218,93 +279,56 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
                 ],
               ),
             )
-          : const Center(child: CircularProgressIndicator()),
-      bottomNavigationBar: BottomBar(
-          primaryButtonLabel: 'Create',
-          onPrimaryButtonPressed: () async {
-            if (selectedCustomerId != -1 &&
-                selectedCrateIds.isNotEmpty &&
-                selectedAddress != null) {
-              var response =
-                  await HttpService().create('app/delivery_batches/', {
-                "crates": selectedCrateIds,
-                "customer": selectedCustomerId,
-                "delivery_address": selectedAddress!.id
-              });
-              if (response.statusCode == 400) {
-                if (jsonDecode(response.body)['delivery_address'] != null) {
-                  await showError(
-                      jsonDecode(response.body)['delivery_address'][0],
-                      context);
+          : Center(child: const CircularProgressIndicator()),
+      bottomNavigationBar: BottomNavigationBar(
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.clear), label: 'Cancel'),
+          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Add')
+        ],
+        currentIndex: 1,
+        selectedItemColor: Colors.green,
+        unselectedItemColor: Colors.grey,
+        onTap: (index) async {
+          switch (index) {
+            case 1:
+              if (selectedCustomerId != -1 &&
+                  selectedCrateIds.isNotEmpty &&
+                  selectedAddress != null) {
+                var response =
+                    await HttpService().create('app/delivery_batches/', {
+                  "crates": selectedCrateIds,
+                  "customer": selectedCustomerId,
+                  "delivery_address": selectedAddress!.id
+                });
+                if (response.statusCode == 400) {
+                  if (jsonDecode(response.body)['delivery_address'] != null) {
+                    await showError(
+                        jsonDecode(response.body)['delivery_address'][0],
+                        context);
+                  }
+                }
+                Navigator.pop(context, true);
+              } else {
+                setState(() {
+                  addClicked = true;
+                });
+                if (selectedAddress == null) {
+                  final targetContext = addressKey.currentContext;
+                  if (targetContext != null) {
+                    Scrollable.ensureVisible(
+                      targetContext,
+                      duration: const Duration(milliseconds: 400),
+                      curve: Curves.easeInOut,
+                    );
+                  }
                 }
               }
-              Navigator.pop(context, true);
-            } else {
-              setState(() {
-                addClicked = true;
-              });
-              // if (selectedAddress == null) {
-              //   final targetContext = addressKey.currentContext;
-              //   if (targetContext != null) {
-              //     Scrollable.ensureVisible(
-              //       targetContext,
-              //       duration: const Duration(milliseconds: 400),
-              //       curve: Curves.easeInOut,
-              //     );
-              //   }
-              // }
-            }
-          }),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   items: [
-      //     BottomNavigationBarItem(icon: Icon(Icons.clear), label: 'Cancel'),
-      //     BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Add')
-      //   ],
-      //   currentIndex: 1,
-      //   selectedItemColor: Colors.green,
-      //   unselectedItemColor: Colors.grey,
-      //   onTap: (index) async {
-      //     switch (index) {
-      //       case 1:
-      //         if (selectedCustomerId != -1 &&
-      //             selectedCrateIds.isNotEmpty &&
-      //             selectedAddress != null) {
-      //           var response =
-      //               await HttpService().create('app/delivery_batches/', {
-      //             "crates": selectedCrateIds,
-      //             "customer": selectedCustomerId,
-      //             "delivery_address": selectedAddress!.id
-      //           });
-      //           if (response.statusCode == 400) {
-      //             if (jsonDecode(response.body)['delivery_address'] != null) {
-      //               await showError(
-      //                   jsonDecode(response.body)['delivery_address'][0],
-      //                   context);
-      //             }
-      //           }
-      //           Navigator.pop(context, true);
-      //         } else {
-      //           setState(() {
-      //             addClicked = true;
-      //           });
-      //           // if (selectedAddress == null) {
-      //           //   final targetContext = addressKey.currentContext;
-      //           //   if (targetContext != null) {
-      //           //     Scrollable.ensureVisible(
-      //           //       targetContext,
-      //           //       duration: const Duration(milliseconds: 400),
-      //           //       curve: Curves.easeInOut,
-      //           //     );
-      //           //   }
-      //           // }
-      //         }
-      //
-      //       case 0:
-      //         bool confirmation = await confirmationModal(context: context, header: "Are you sure", message: "Are you sure you want to cancel?")
-      //         Navigator.pop(context);
-      //     }
-      //   },
-      // ),
+
+            case 0:
+              Navigator.pop(context);
+          }
+        },
+      ),
     );
   }
 
