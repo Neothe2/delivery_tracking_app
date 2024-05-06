@@ -92,130 +92,110 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
       resizeToAvoidBottomInset: true,
       body: cratesLoaded
           ? SingleChildScrollView(
-              child: Column(
-                children: [
-                  SizedBox(
-                    width: 300,
-                    child: OutlinedButton(
-                        onPressed: () async {
-                          print('Navigating to Select Crates page');
-                          List<Crate>? response =
-                              await Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (cxt) => SelectCratesPage(
-                                crateList: crateList,
-                                initialCrates: selectedCrates,
-                              ),
-                            ),
-                          );
-
-                          if (response != null) {
-                            selectedCrates = response;
-                            selectedCrateIds =
-                                response.map((e) => e.crateId).toList();
-                          }
-                        },
-                        child: const Text('Select Crates')),
-                  ),
-                  SizedBox(
-                    width: 300,
-                    child: OutlinedButton(
-                        onPressed: () async {
-                          print('Navigating to Select Customer page');
-                          List<dynamic>? response =
-                              await Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (cxt) => SelectCustomerPage(
-                                customerList: customerList,
-                                initialCustomer: selectedCustomer,
-                              ),
-                            ),
-                          );
-
-                          if (response != null) {
-                            if (response[0] is Customer) {
-                              selectedCustomer = response[0];
-                              selectedCustomerId = response[0].id;
-
-                              setState(() {
-                                selectedAddress = null;
-                              });
-                            }
-                          }
-                        },
-                        child: const Text('Select Customer')),
-                  ),
-                  Visibility(
-                    visible: (!isAddressSelected && addClicked),
-                    child: Text("Please select an address",
-                        style: TextStyle(color: Colors.red)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: const Border.fromBorderSide(
-                          BorderSide(color: Colors.grey),
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: DropdownButton<Address>(
-                          key: addressKey,
-                          isExpanded: true,
-                          hint: Text("Select Delivery Address"),
-                          value: selectedAddress,
-                          items: (selectedCustomerId != -1)
-                              ? customerList
-                                  .firstWhere((customer) =>
-                                      customer.id == selectedCustomerId)
-                                  .getAddressesAsDropdownItems()
-                              : [
-                                  DropdownMenuItem(
-                                      value: null,
-                                      child: Text("Select customer first"))
-                                ],
-                          onChanged: (value) {
-                            setState(() {
-                              selectedAddress = value;
-                              isAddressSelected = value != null;
-                            });
-                          },
-                        ),
+              child: Center(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Visibility(
+                        visible: (selectedCrates.isEmpty && addClicked),
+                        child: Text("Please select at least one crate",
+                            style: TextStyle(color: Colors.red)),
                       ),
                     ),
-                  ),
-                  // Padding(
-                  //   padding: const EdgeInsets.all(10.10),
-                  //   child: Container(
-                  //     alignment: Alignment.bottomCenter,
-                  //     child: OutlinedButton(
-                  //       onPressed: () async {
-                  //         if (selectedCustomerId != -1 &&
-                  //             selectedCrateIds.isNotEmpty) {
-                  //           var response = await HttpService().create(
-                  //               'app/delivery_batches/', {
-                  //             "crates": selectedCrateIds,
-                  //             "customer": selectedCustomerId
-                  //           });
-                  //           Navigator.pop(context, true);
-                  //         }
-                  //         // DeliveryBatch deliveryBatch =
-                  //         //     parseDeliveryBatch(response.body);
-                  //       },
-                  //       child: Text('Add Delivery Batch'),
-                  //       style: ButtonStyle(
-                  //         shape: MaterialStateProperty.all(
-                  //           RoundedRectangleBorder(
-                  //             borderRadius: BorderRadius.circular(10.0),
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ),
-                  // )
-                ],
+                    SizedBox(
+                      width: 300,
+                      child: OutlinedButton(
+                          onPressed: () async {
+                            print('Navigating to Select Crates page');
+                            List<Crate>? response =
+                                await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (cxt) => SelectCratesPage(
+                                  crateList: crateList,
+                                  initialCrates: selectedCrates,
+                                ),
+                              ),
+                            );
+
+                            if (response != null) {
+                              setState(() {
+                                selectedCrates = response;
+                              });
+                              selectedCrateIds =
+                                  response.map((e) => e.crateId).toList();
+                            }
+                          },
+                          child: const Text('Select Crates')),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Visibility(
+                        visible: (selectedCustomer == null && addClicked),
+                        child: const Text("Please select a customer",
+                            style: TextStyle(color: Colors.red)),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 300,
+                      child: OutlinedButton(
+                          onPressed: () async {
+                            print('Navigating to Select Customer page');
+                            List<dynamic>? response =
+                                await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (cxt) => SelectCustomerPage(
+                                  customerList: customerList,
+                                  initialCustomer: selectedCustomer,
+                                  selectedAddress: selectedAddress,
+                                ),
+                              ),
+                            );
+
+                            if (response != null) {
+                              if (response[0] is Customer) {
+                                setState(() {
+                                  selectedCustomer = response[0];
+                                });
+                                selectedCustomerId = response[0].id;
+                                selectedAddress = response[1];
+                              }
+                            }
+                          },
+                          child: const Text('Select Customer')),
+                    ),
+
+                    // Padding(
+                    //   padding: const EdgeInsets.all(10.10),
+                    //   child: Container(
+                    //     alignment: Alignment.bottomCenter,
+                    //     child: OutlinedButton(
+                    //       onPressed: () async {
+                    //         if (selectedCustomerId != -1 &&
+                    //             selectedCrateIds.isNotEmpty) {
+                    //           var response = await HttpService().create(
+                    //               'app/delivery_batches/', {
+                    //             "crates": selectedCrateIds,
+                    //             "customer": selectedCustomerId
+                    //           });
+                    //           Navigator.pop(context, true);
+                    //         }
+                    //         // DeliveryBatch deliveryBatch =
+                    //         //     parseDeliveryBatch(response.body);
+                    //       },
+                    //       child: Text('Add Delivery Batch'),
+                    //       style: ButtonStyle(
+                    //         shape: MaterialStateProperty.all(
+                    //           RoundedRectangleBorder(
+                    //             borderRadius: BorderRadius.circular(10.0),
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // )
+                  ],
+                ),
               ),
             )
           : const Center(child: CircularProgressIndicator()),

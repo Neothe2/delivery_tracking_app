@@ -48,7 +48,7 @@ class _ScanCratesForAddState extends State<ScanCratesForAdd> {
         },
       );
 
-  scan(String text) async {
+  scan1(String text) async {
     String crateId = text;
     Crate? scannedCrate = widget.validate(text);
     if (scannedCrate == null) {
@@ -76,6 +76,38 @@ class _ScanCratesForAddState extends State<ScanCratesForAdd> {
         Vibration.vibrate(duration: 100, amplitude: 10);
         showTopSnackBar(context, 'Scanned Successfully', ColorPalette.green);
         selectedCrates.add(scannedCrate!);
+      });
+    }
+  }
+
+  scan(String text) async {
+    String crateId = text;
+    Crate? scannedCrate = getCrateByIdOrNull(crateId, selectedCrates);
+    if (scannedCrate == null) {
+      scannedCrate = widget.validate(crateId);
+      if (scannedCrate == null) {
+        Vibration.vibrate(
+            pattern: [250, 500, 250, 500, 250, 500], amplitude: 50);
+
+        setState(() {
+          showTopSnackBar(context, 'Crate Not Found', Colors.red);
+          // correctionText = 'Incorrect Crate';
+          return;
+        });
+      } else {
+        setState(() {
+          Vibration.vibrate(duration: 100, amplitude: 10);
+          showTopSnackBar(context, 'Scanned Successfully', ColorPalette.green);
+          selectedCrates.add(scannedCrate!);
+        });
+      }
+    } else {
+      setState(() {
+        Vibration.vibrate(pattern: [250, 500, 250, 500], amplitude: 50);
+        //Show bread crumb
+        showTopSnackBar(context, 'Crate Already Scanned', Colors.black38);
+        // correctionText = 'Already Scanned';
+        return;
       });
     }
   }
@@ -112,48 +144,72 @@ class _ScanCratesForAddState extends State<ScanCratesForAdd> {
       ),
       resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(
-              height: 10,
-            ),
+        child: Center(
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 10,
+              ),
 
-            SizedBox(
-              height: 250,
-              width: 250,
-              child: Container(
-                decoration:
-                    BoxDecoration(borderRadius: BorderRadius.circular(20)),
-                child: BarcodeScannerWidget(
-                  scannerType: ScannerType.barcode,
-                  onError: (e) {},
-                  onBarcodeDetected: (Barcode barcode) async {
-                    scan(barcode.value);
-                    BarcodeScanner.startScanner();
-                  },
-                  onTextDetected: (text) {},
+              SizedBox(
+                height: 250,
+                width: 250,
+                child: Container(
+                  decoration:
+                      BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                  child: BarcodeScannerWidget(
+                    scannerType: ScannerType.barcode,
+                    onError: (e) {},
+                    onBarcodeDetected: (Barcode barcode) async {
+                      scan(barcode.value);
+                      BarcodeScanner.startScanner();
+                    },
+                    onTextDetected: (text) {},
+                  ),
                 ),
               ),
-            ),
-            // OutlinedButton(
-            //     onPressed: () {
-            //       scan(crateIdTextController.value.text);
-            //     },
-            //     child: const Text('Enter')),
+              // OutlinedButton(
+              //     onPressed: () {
+              //       scan(crateIdTextController.value.text);
+              //     },
+              //     child: const Text('Enter')),
 
-            const SizedBox(
-              height: 50,
-            ),
-            // Text(
-            //   'Loaded Crates',
-            //   style: TextStyle(fontSize: 20),
-            // ),
-            // Text(
-            //   '${selectedCrates.length}/${widget.selectedCrateList.length}',
-            //   style: const TextStyle(fontSize: 40),
-            //   textAlign: TextAlign.center,
-            // ),
-          ],
+              const SizedBox(
+                height: 50,
+              ),
+
+              Expanded(
+                  child: ListView.builder(
+                itemCount: selectedCrates.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text("Crate: ${selectedCrates[index].crateId}"),
+                    trailing: IconButton(
+                      style: ButtonStyle(
+                        elevation: MaterialStatePropertyAll(0),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          selectedCrates.remove(selectedCrates[index]);
+                        });
+                      },
+                      icon: const Icon(Icons.close),
+                      color: Colors.red,
+                    ),
+                  );
+                },
+              ))
+              // Text(
+              //   'Loaded Crates',
+              //   style: TextStyle(fontSize: 20),
+              // ),
+              // Text(
+              //   '${selectedCrates.length}/${widget.selectedCrateList.length}',
+              //   style: const TextStyle(fontSize: 40),
+              //   textAlign: TextAlign.center,
+              // ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -175,7 +231,7 @@ class _ScanCratesForAddState extends State<ScanCratesForAdd> {
                 Navigator.pop(context);
               }
             case 1:
-              Navigator.pop(context, []);
+              Navigator.pop(context, selectedCrates);
           }
         },
       ),
