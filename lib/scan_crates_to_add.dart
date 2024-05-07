@@ -144,6 +144,7 @@ class _ScanCratesForAddState extends State<ScanCratesForAdd> {
       ),
       resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Center(
           child: Column(
             children: [
@@ -178,27 +179,48 @@ class _ScanCratesForAddState extends State<ScanCratesForAdd> {
                 height: 50,
               ),
 
-              Expanded(
-                  child: ListView.builder(
-                itemCount: selectedCrates.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text("Crate: ${selectedCrates[index].crateId}"),
-                    trailing: IconButton(
-                      style: ButtonStyle(
-                        elevation: MaterialStatePropertyAll(0),
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          selectedCrates.remove(selectedCrates[index]);
-                        });
-                      },
-                      icon: const Icon(Icons.close),
-                      color: Colors.red,
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: const Border.fromBorderSide(
+                      BorderSide(color: Colors.grey),
                     ),
-                  );
-                },
-              ))
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  height: 300,
+                  child: Column(
+                    children: [
+                      Expanded(
+                          child: (selectedCrates.isNotEmpty)
+                              ? ListView.builder(
+                                  itemCount: selectedCrates.length,
+                                  itemBuilder: (context, index) {
+                                    return ListTile(
+                                      title: Text(
+                                          "Crate: ${selectedCrates[index].crateId}"),
+                                      trailing: IconButton(
+                                        style: ButtonStyle(
+                                          elevation:
+                                              MaterialStatePropertyAll(0),
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            selectedCrates
+                                                .remove(selectedCrates[index]);
+                                          });
+                                        },
+                                        icon: const Icon(Icons.close),
+                                        color: Colors.red,
+                                      ),
+                                    );
+                                  },
+                                )
+                              : Center(child: Text('Scan a crate'))),
+                    ],
+                  ),
+                ),
+              )
               // Text(
               //   'Loaded Crates',
               //   style: TextStyle(fontSize: 20),

@@ -202,13 +202,13 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
       bottomNavigationBar: BottomBar(
           primaryButtonLabel: 'Create',
           onPrimaryButtonPressed: () async {
-            if (selectedCustomerId != -1 &&
-                selectedCrateIds.isNotEmpty &&
+            if (selectedCustomer != null &&
+                selectedCrates.isNotEmpty &&
                 selectedAddress != null) {
               var response =
                   await HttpService().create('app/delivery_batches/', {
-                "crates": selectedCrateIds,
-                "customer": selectedCustomerId,
+                "crates": selectedCrates.map((e) => e.crateId).toList(),
+                "customer": selectedCustomer!.id,
                 "delivery_address": selectedAddress!.id
               });
               if (response.statusCode == 400) {

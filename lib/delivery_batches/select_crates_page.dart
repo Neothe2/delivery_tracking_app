@@ -44,6 +44,7 @@ class _SelectCratesPageState extends State<SelectCratesPage> {
       ),
       resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Column(
           children: [
             Visibility(
