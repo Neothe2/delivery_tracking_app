@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 class ColorPalette {
-  static const Color backgroundWhite = Color(0xFFf9f9f9);
+  static const Color backgroundWhite = Color(0xfff9f9f9);
   static const Color cream = Color(0xFFf2e8cf); // Lightest color
   static const Color greenVibrant = Color(0xFFa7c957); // Primary green
   static const Color green = Color(0xFF6a994e); // Darker green

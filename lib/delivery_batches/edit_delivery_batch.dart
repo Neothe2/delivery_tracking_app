@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:delivery_tracking_app/delivery_batches/select_crates_page.dart';
+import 'package:delivery_tracking_app/delivery_batches/select_customer_page.dart';
 import 'package:delivery_tracking_app/http_service.dart';
-import 'package:delivery_tracking_app/searchable_list.dart';
 import 'package:flutter/material.dart';
 
+import '../custom_bottom_bar.dart';
 import '../error_modal.dart';
 import '../models/address.dart';
 import '../models/crate.dart';
@@ -31,6 +33,8 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
   Address? selectedAddress;
   List<DropdownMenuItem<Address>> addressItems = [];
   bool customersLoaded = false;
+
+  bool addClicked = false;
 
   @override
   void initState() {
@@ -122,189 +126,180 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
       resizeToAvoidBottomInset: true,
       body: cratesLoaded
           ? SingleChildScrollView(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: const Border.fromBorderSide(
-                          BorderSide(color: Colors.grey),
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: EdgeInsets.all(10),
-                            height: 400,
-                            child: SelectableListView(
-                              checkboxes: true,
-                              preSelectedValues: preselectedCrates,
-                              items: selectableListViewList,
-                              onSelectionChanged:
-                                  (List<dynamic> selectionChanged) {
-                                selectedCrates = selectionChanged
-                                    .map((e) => (e as Crate))
-                                    .toList();
-                                selectedCrateIds = selectionChanged.map((e) {
-                                  return (e.crateId as String);
-                                }).toList();
-                              },
-                              title: 'Crates',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: const Border.fromBorderSide(
-                          BorderSide(color: Colors.grey),
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: EdgeInsets.all(10),
-                            height: 400,
-                            child: SelectableListView(
-                              checkboxes: true,
-                              radioButtons: true,
-                              preSelectedValues: preselectedCustomer != null
-                                  ? [preselectedCustomer]
-                                  : [],
-                              items: selectableCustomerListViewList,
-                              onSelectionChanged:
-                                  (List<dynamic> selectionChanged) {
-                                selectedCustomer = (selectionChanged.isNotEmpty)
-                                    ? selectionChanged[0]
-                                    : null;
-                                selectedCustomerId =
-                                    (selectionChanged.isNotEmpty)
-                                        ? selectionChanged[0].id
-                                        : -1;
-
-                                setState(() {
-                                  selectedAddress = null;
-                                });
-                              },
-                              title: 'Customer',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  if (customersLoaded)
+              child: Center(
+                child: Column(
+                  children: [
                     Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: const Border.fromBorderSide(
-                            BorderSide(color: Colors.grey),
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: DropdownButton<Address>(
-                            isExpanded: true,
-                            hint: Text("Select Delivery Address"),
-                            value: selectedAddress,
-                            items: (selectedCustomerId != -1)
-                                ? addressItems
-                                : [
-                                    DropdownMenuItem(
-                                        value: null,
-                                        child: Text("Select customer first"))
-                                  ],
-                            onChanged: (value) {
-                              setState(() {
-                                selectedAddress = value;
-                              });
-                            },
-                          ),
-                        ),
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Visibility(
+                        visible: (selectedCrates.isEmpty && addClicked),
+                        child: const Text("Please select at least one crate.",
+                            style: TextStyle(color: Colors.red)),
                       ),
                     ),
-                  // Padding(
-                  //   padding: const EdgeInsets.all(10.10),
-                  //   child: Container(
-                  //     alignment: Alignment.bottomCenter,
-                  //     child: OutlinedButton(
-                  //       onPressed: () async {
-                  //         if (selectedCustomerId != -1 &&
-                  //             selectedCrateIds.isNotEmpty) {
-                  //           var response = await HttpService().create(
-                  //               'app/delivery_batches/', {
-                  //             "crates": selectedCrateIds,
-                  //             "customer": selectedCustomerId
-                  //           });
-                  //           Navigator.pop(context, true);
-                  //         }
-                  //         // DeliveryBatch deliveryBatch =
-                  //         //     parseDeliveryBatch(response.body);
-                  //       },
-                  //       child: Text('Add Delivery Batch'),
-                  //       style: ButtonStyle(
-                  //         shape: MaterialStateProperty.all(
-                  //           RoundedRectangleBorder(
-                  //             borderRadius: BorderRadius.circular(10.0),
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ),
-                  // )
-                ],
+                    SizedBox(
+                      width: 300,
+                      child: OutlinedButton(
+                          onPressed: () async {
+                            List<Crate>? response =
+                                await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (cxt) => SelectCratesPage(
+                                  crateList: crateList,
+                                  initialCrates: selectedCrates,
+                                ),
+                              ),
+                            );
+
+                            if (response != null) {
+                              setState(() {
+                                selectedCrates = response;
+                              });
+                              selectedCrateIds =
+                                  response.map((e) => e.crateId).toList();
+                            }
+                          },
+                          child: const Text('Select Crates')),
+                    ),
+                    SizedBox(
+                      width: 300,
+                      child: OutlinedButton(
+                          onPressed: () async {
+                            List<dynamic>? response =
+                                await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (cxt) => SelectCustomerPage(
+                                  customerList: customerList,
+                                  initialCustomer: selectedCustomer,
+                                  selectedAddress: selectedAddress,
+                                ),
+                              ),
+                            );
+
+                            if (response != null) {
+                              if (response[0] is Customer) {
+                                setState(() {
+                                  selectedCustomer = response[0];
+                                });
+                                selectedCustomerId = response[0].id;
+                                selectedAddress = response[1];
+                              }
+                            }
+                          },
+                          child: const Text('Select Customer')),
+                    ),
+
+                    // Padding(
+                    //   padding: const EdgeInsets.all(10.10),
+                    //   child: Container(
+                    //     alignment: Alignment.bottomCenter,
+                    //     child: OutlinedButton(
+                    //       onPressed: () async {
+                    //         if (selectedCustomerId != -1 &&
+                    //             selectedCrateIds.isNotEmpty) {
+                    //           var response = await HttpService().create(
+                    //               'app/delivery_batches/', {
+                    //             "crates": selectedCrateIds,
+                    //             "customer": selectedCustomerId
+                    //           });
+                    //           Navigator.pop(context, true);
+                    //         }
+                    //         // DeliveryBatch deliveryBatch =
+                    //         //     parseDeliveryBatch(response.body);
+                    //       },
+                    //       child: Text('Add Delivery Batch'),
+                    //       style: ButtonStyle(
+                    //         shape: MaterialStateProperty.all(
+                    //           RoundedRectangleBorder(
+                    //             borderRadius: BorderRadius.circular(10.0),
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // )
+                  ],
+                ),
               ),
             )
-          : const Text('Loading...'),
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.clear), label: 'Cancel'),
-          BottomNavigationBarItem(icon: Icon(Icons.check), label: 'Confirm')
-        ],
-        currentIndex: 1,
-        selectedItemColor: Colors.green,
-        unselectedItemColor: Colors.grey,
-        onTap: (index) async {
-          switch (index) {
-            case 1:
-              if (selectedCustomerId != -1 &&
-                  selectedCrateIds.isNotEmpty &&
-                  selectedAddress != null) {
-                var response = await HttpService().update(
-                    'app/delivery_batches/${widget.deliveryBatch.id}/', {
-                  "crates": selectedCrateIds,
-                  "customer": selectedCustomerId,
-                  "delivery_address": selectedAddress!.id
-                });
+          : const Center(child: CircularProgressIndicator()),
+      bottomNavigationBar: BottomBar(
+          primaryButtonLabel: 'Ok',
+          onPrimaryButtonPressed: () async {
+            if (selectedCustomerId != -1 &&
+                selectedCrateIds.isNotEmpty &&
+                selectedAddress != null) {
+              var response = await HttpService()
+                  .update('app/delivery_batches/${widget.deliveryBatch.id}/', {
+                "crates": selectedCrateIds,
+                "customer": selectedCustomerId,
+                "delivery_address": selectedAddress!.id
+              });
 
-                if (response.statusCode == 400) {
-                  if (jsonDecode(response.body)['delivery_address'] != null) {
-                    await showError(
-                        jsonDecode(response.body)['delivery_address'][0],
-                        context);
-                  }
+              if (response.statusCode == 400) {
+                if (jsonDecode(response.body)['delivery_address'] != null) {
+                  await showError(
+                      jsonDecode(response.body)['delivery_address'][0],
+                      context);
                 }
-                print(jsonDecode(response.body));
-                widget.deliveryBatch.crates = selectedCrates;
-                widget.deliveryBatch.customer = selectedCustomer;
-                widget.deliveryBatch.address = selectedAddress!;
-                Navigator.pop(context, widget.deliveryBatch);
               }
-
-            case 0:
-              Navigator.pop(context);
-          }
-        },
-      ),
+              print(jsonDecode(response.body));
+              widget.deliveryBatch.crates = selectedCrates;
+              widget.deliveryBatch.customer = selectedCustomer;
+              widget.deliveryBatch.address = selectedAddress!;
+              Navigator.pop(context, widget.deliveryBatch);
+            }
+          }),
+      // bottomNavigationBar: BottomNavigationBar(
+      //   items: [
+      //     BottomNavigationBarItem(icon: Icon(Icons.clear), label: 'Cancel'),
+      //     BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Add')
+      //   ],
+      //   currentIndex: 1,
+      //   selectedItemColor: Colors.green,
+      //   unselectedItemColor: Colors.grey,
+      //   onTap: (index) async {
+      //     switch (index) {
+      //       case 1:
+      //         if (selectedCustomerId != -1 &&
+      //             selectedCrateIds.isNotEmpty &&
+      //             selectedAddress != null) {
+      //           var response =
+      //               await HttpService().create('app/delivery_batches/', {
+      //             "crates": selectedCrateIds,
+      //             "customer": selectedCustomerId,
+      //             "delivery_address": selectedAddress!.id
+      //           });
+      //           if (response.statusCode == 400) {
+      //             if (jsonDecode(response.body)['delivery_address'] != null) {
+      //               await showError(
+      //                   jsonDecode(response.body)['delivery_address'][0],
+      //                   context);
+      //             }
+      //           }
+      //           Navigator.pop(context, true);
+      //         } else {
+      //           setState(() {
+      //             addClicked = true;
+      //           });
+      //           // if (selectedAddress == null) {
+      //           //   final targetContext = addressKey.currentContext;
+      //           //   if (targetContext != null) {
+      //           //     Scrollable.ensureVisible(
+      //           //       targetContext,
+      //           //       duration: const Duration(milliseconds: 400),
+      //           //       curve: Curves.easeInOut,
+      //           //     );
+      //           //   }
+      //           // }
+      //         }
+      //
+      //       case 0:
+      //         bool confirmation = await confirmationModal(context: context, header: "Are you sure", message: "Are you sure you want to cancel?")
+      //         Navigator.pop(context);
+      //     }
+      //   },
+      // ),
     );
   }
 

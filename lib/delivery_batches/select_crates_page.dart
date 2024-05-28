@@ -30,7 +30,15 @@ class _SelectCratesPageState extends State<SelectCratesPage> {
   void initState() {
     super.initState();
     crateList = widget.crateList;
-    selectedCrates = widget.initialCrates;
+    if (widget.initialCrates.isNotEmpty) {
+      for (var initialCrate in widget.initialCrates) {
+        for (var crate in crateList) {
+          if (initialCrate.crateId == crate.crateId) {
+            selectedCrates.add(crate);
+          }
+        }
+      }
+    }
   }
 
   @override

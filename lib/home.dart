@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:delivery_tracking_app/allocate_vehicle_to_delivery_batch.dart';
 import 'package:delivery_tracking_app/assign_driver.dart';
 import 'package:delivery_tracking_app/confirmation_modal.dart';
+import 'package:delivery_tracking_app/crates/crates_list.dart';
 import 'package:delivery_tracking_app/delivery_batches/delivery_batches.dart';
 import 'package:delivery_tracking_app/driver_dash_board.dart';
 import 'package:delivery_tracking_app/driver_unload_dashboard.dart';
@@ -77,25 +78,29 @@ class _HomePageState extends State<HomePage> {
     });
 
     if (groups.contains('driver')) {
-      var driverResponse =
-          await HttpService().get('app/drivers/get_driver_of_user/');
-      var driverData = jsonDecode(driverResponse.body);
-      driver = Driver(driverData['id'], driverData['contact']['name'],
-          parseVehicle(driverData['current_vehicle']));
-      if (driver!.currentVehicle != null) {
-        var cratesResponse = await HttpService().get(
-            'app/vehicles/${driver!.currentVehicle!.id}/get_crates_of_vehicle/');
-        var cratesData = jsonDecode(cratesResponse.body);
-        for (var crate in cratesData) {
-          cratesToBeLoaded.add(Crate(crate['crate_id']));
-        }
+      await getDriver(navigate);
+    }
+  }
+
+  Future<void> getDriver(bool navigate) async {
+    var driverResponse =
+        await HttpService().get('app/drivers/get_driver_of_user/');
+    var driverData = jsonDecode(driverResponse.body);
+    driver = Driver(driverData['id'], driverData['contact']['name'],
+        parseVehicle(driverData['current_vehicle']));
+    if (driver!.currentVehicle != null) {
+      var cratesResponse = await HttpService().get(
+          'app/vehicles/${driver!.currentVehicle!.id}/get_crates_of_vehicle/');
+      var cratesData = jsonDecode(cratesResponse.body);
+      for (var crate in cratesData) {
+        cratesToBeLoaded.add(Crate(crate['crate_id']));
       }
-      setState(() {
-        driverLoaded = true;
-      });
-      if (navigate) {
-        await navigateToUnloadDashboard();
-      }
+    }
+    setState(() {
+      driverLoaded = true;
+    });
+    if (navigate) {
+      await navigateToUnloadDashboard();
     }
   }
 
@@ -480,7 +485,31 @@ class _HomePageState extends State<HomePage> {
       drawer: (listTiles.isNotEmpty)
           ? Drawer(
               child: ListView(
-                children: [...listTiles],
+                children: [
+                  ...listTiles,
+                  Spacer(),
+                  // OutlinedButton(
+                  //   onPressed: () async {
+                  //     bool confirmation = await confirmationModal(
+                  //         context: context,
+                  //         header: "Are You Sure?",
+                  //         message: "Are you sure you want to log out?");
+                  //     if (confirmation) {
+                  //       logOut();
+                  //     }
+                  //   },
+                  //   style: ButtonStyle(
+                  //     backgroundColor:
+                  //         MaterialStatePropertyAll(ColorPalette.greenDark),
+                  //     shape: MaterialStatePropertyAll(
+                  //       RoundedRectangleBorder(
+                  //         borderRadius: BorderRadius.circular(10),
+                  //       ),
+                  //     ),
+                  //   ),
+                  //   child: const Text('Log out'),
+                  // )
+                ],
               ),
             )
           : null,
@@ -508,14 +537,22 @@ class _HomePageState extends State<HomePage> {
       indent: 10,
       endIndent: 10,
     ));
-    if (groups.contains('billing_staff')) {
+    if (groups.contains('billing_staff') ||
+        groups.contains('admin') ||
+        groups.contains('pierr_admin')) {
       addMenuItem('Delivery Batches', () {
         _scaffoldKey.currentState!.closeDrawer();
         Navigator.of(context).push(
             MaterialPageRoute(builder: (cxt) => const DeliveryBatchesPage()));
       });
+      addMenuItem('Crates', () {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (cxt) => CratesListPage()));
+      });
     }
-    if (groups.contains('transport_allocation_staff')) {
+    if (groups.contains('transport_allocation_staff') ||
+        groups.contains('admin') ||
+        groups.contains('pierr_admin')) {
       addMenuItem('Delivery Batches', () {
         _scaffoldKey.currentState!.closeDrawer();
         Navigator.of(context).push(

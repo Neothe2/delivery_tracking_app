@@ -1,12 +1,14 @@
 import 'dart:convert';
 
+import 'package:delivery_tracking_app/debug_mode.dart';
 import 'package:delivery_tracking_app/login_page.dart';
 import 'package:http/http.dart' as http;
 
 class HttpService {
   static final HttpService _instance = HttpService._internal();
-  final String _baseUrl =
-      "http://108.181.201.104:80"; // Replace with your actual base URL
+  final String _baseUrl = debugMode
+      ? 'http://10.0.2.2:80'
+      : "http://108.181.201.104:80"; // Replace with your actual base URL
   String _accessToken = ""; // Replace with your actual initial access token
 
   factory HttpService() {

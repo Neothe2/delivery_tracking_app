@@ -102,7 +102,7 @@ class _SelectCustomerPageState extends State<SelectCustomerPage> {
                           selectedCustomer!.addresses.length > 1) {
                         selectedAddress = null;
                         showAddressMessageBox = true;
-                      } else {
+                      } else if (selectedCustomer != null) {
                         selectedAddress = selectedCustomer!.addresses[0];
                         showAddressMessageBox = false;
                       }
