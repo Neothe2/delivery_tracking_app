@@ -40,6 +40,8 @@ dependencies:
   native_barcode_scanner: ^1.0.9
   vibration: ^1.8.4
   flutter_vibrate: ^1.3.0
+  image_picker: ^1.1.1
+  signature: ^5.5.0
 #  flutter_launcher_icons: ^0.13.1
 
 dev_dependencies:

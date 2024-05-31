@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:delivery_tracking_app/colour_constants.dart';
+import 'package:delivery_tracking_app/proof_of_delivery/signature_page.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../custom_bottom_bar.dart';
 
@@ -11,6 +15,7 @@ class ProofOfDeliveryPage extends StatefulWidget {
 }
 
 class _ProofOfDeliveryPageState extends State<ProofOfDeliveryPage> {
+  File? selectedImage;
   var buttonStyle = ButtonStyle(
     shape: MaterialStatePropertyAll(
       RoundedRectangleBorder(
@@ -45,7 +50,10 @@ class _ProofOfDeliveryPageState extends State<ProofOfDeliveryPage> {
                       aspectRatio: 1, // Makes the button square
                       child: OutlinedButton(
                         style: buttonStyle,
-                        onPressed: () {},
+                        onPressed: () async {
+                          await Navigator.of(context).push(MaterialPageRoute(
+                              builder: (cxt) => SignaturePage()));
+                        },
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -68,7 +76,9 @@ class _ProofOfDeliveryPageState extends State<ProofOfDeliveryPage> {
                       aspectRatio: 1,
                       child: OutlinedButton(
                         style: buttonStyle,
-                        onPressed: () {},
+                        onPressed: () async {
+                          await _pickImage();
+                        },
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -88,7 +98,9 @@ class _ProofOfDeliveryPageState extends State<ProofOfDeliveryPage> {
             // Wrap the TextField in ans Expanded widget
             Padding(
               padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
-              child: TextField(),
+              child: selectedImage != null
+                  ? Image.file(selectedImage!)
+                  : TextField(),
             ),
           ],
         ),
@@ -100,5 +112,13 @@ class _ProofOfDeliveryPageState extends State<ProofOfDeliveryPage> {
     );
   }
 
-  Future _pickImage() async {}
+  Future _pickImage() async {
+    final returnedImage =
+        await ImagePicker().pickImage(source: ImageSource.camera);
+    if (returnedImage != null) {
+      setState(() {
+        selectedImage = File(returnedImage.path);
+      });
+    }
+  }
 }
