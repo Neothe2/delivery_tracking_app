@@ -84,8 +84,9 @@ class _SelectCustomerPageState extends State<SelectCustomerPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: DropdownMenu(
+                  width: MediaQuery.sizeOf(context).width - 20,
                   initialSelection: initialCustomer,
                   enableSearch: true,
                   enableFilter: true,
@@ -149,23 +150,32 @@ class _SelectCustomerPageState extends State<SelectCustomerPage> {
                         ? Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Text('Address: ${selectedAddress!.value}'),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 5.0),
+                                    child: Text(
+                                      'Address: ${selectedAddress!.value}',
+                                      textAlign: TextAlign.left,
+                                    ),
+                                  ),
+                                ),
                                 if (selectedCustomer!.addresses.length > 1)
-                                  Row(
-                                    children: [
-                                      OutlinedButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            selectedAddress = null;
-                                            showAddressMessageBox = true;
-                                          });
-                                        },
-                                        child: const Text(
-                                          ("Choose another address"),
-                                        ),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: OutlinedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          selectedAddress = null;
+                                          showAddressMessageBox = true;
+                                        });
+                                      },
+                                      child: const Text(
+                                        ("Choose another address"),
                                       ),
-                                    ],
+                                    ),
                                   )
                               ],
                             ),
