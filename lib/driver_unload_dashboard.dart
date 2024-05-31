@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:delivery_tracking_app/http_service.dart';
+import 'package:delivery_tracking_app/proof_of_delivery/proof_of_delivery.dart';
 import 'package:delivery_tracking_app/scan_crates.dart';
 import 'package:flutter/material.dart';
 
@@ -130,14 +131,18 @@ class _DriverUnloadDashBoardState extends State<DriverUnloadDashBoard> {
                         crateList: deliveryBatch.crates,
                         title: "Unload crates from delivery batch",
                         afterScanningFinished: () async {
-                          var unloadResponse = await HttpService().update(
-                            'app/vehicles/${widget.driver.currentVehicle!.id}/unload_delivery_batch/',
-                            {"id": deliveryBatch.id},
+                          await Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (cxt) => ProofOfDeliveryPage(),
+                            ),
                           );
-                          if (unloadResponse.statusCode == 200) {
-                            await getDeliveryBatches();
-                          }
-                          Navigator.pop(context);
+                          // var unloadResponse = await HttpService().update(
+                          //   'app/vehicles/${widget.driver.currentVehicle!.id}/unload_delivery_batch/',
+                          //   {"id": deliveryBatch.id},
+                          // );
+                          // if (unloadResponse.statusCode == 200) {
+                          //   await getDeliveryBatches();
+                          // }
                         },
                       ),
                     ),
