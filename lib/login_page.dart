@@ -82,12 +82,12 @@ class _LoginPageState extends State<LoginPage> {
                         return null;
                       },
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 20,
                     ),
                     TextFormField(
                       controller: _passwordController,
-                      decoration: InputDecoration(labelText: 'Password'),
+                      decoration: const InputDecoration(labelText: 'Password'),
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -294,7 +294,7 @@ class JWTAuthenticationService implements AuthenticationService {
     if (refreshToken != null) {
       final response = await http.post(
         debugMode
-            ? Uri.parse('http://10.0.2.2/auth/jwt/refresh')
+            ? Uri.parse('http://10.0.2.2:81/auth/jwt/refresh')
             : Uri.parse('http://108.181.201.104/auth/jwt/refresh'),
         headers: {
           'Content-Type': 'application/json',
@@ -316,8 +316,8 @@ class JWTAuthenticationService implements AuthenticationService {
   Future<bool> login(String username, String password) async {
     final response = await http.post(
       debugMode
-          ? Uri.parse('http://10.0.2.2:80/auth/jwt/create')
-          : Uri.parse('http://108.181.201.104:80/auth/jwt/create/'),
+          ? Uri.parse('http://10.0.2.2:81/auth/jwt/create')
+          : Uri.parse('http://108.181.201.104:81/auth/jwt/create/'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
         'username': username,

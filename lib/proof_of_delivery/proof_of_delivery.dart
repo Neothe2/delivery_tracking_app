@@ -52,9 +52,9 @@ class _ProofOfDeliveryPageState extends State<ProofOfDeliveryPage> {
                         style: buttonStyle,
                         onPressed: () async {
                           await Navigator.of(context).push(MaterialPageRoute(
-                              builder: (cxt) => SignaturePage()));
+                              builder: (cxt) => const SignaturePage()));
                         },
-                        child: Column(
+                        child: const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
@@ -79,7 +79,7 @@ class _ProofOfDeliveryPageState extends State<ProofOfDeliveryPage> {
                         onPressed: () async {
                           await _pickImage();
                         },
-                        child: Column(
+                        child: const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
@@ -100,7 +100,7 @@ class _ProofOfDeliveryPageState extends State<ProofOfDeliveryPage> {
               padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
               child: selectedImage != null
                   ? Image.file(selectedImage!)
-                  : TextField(),
+                  : const TextField(),
             ),
           ],
         ),
