@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:delivery_tracking_app/colour_constants.dart';
 import 'package:delivery_tracking_app/proof_of_delivery/signature_page.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:signature/signature.dart';
 
 import '../custom_bottom_bar.dart';
 
@@ -16,6 +18,8 @@ class ProofOfDeliveryPage extends StatefulWidget {
 
 class _ProofOfDeliveryPageState extends State<ProofOfDeliveryPage> {
   File? selectedImage;
+  Uint8List? signaturePngBytes;
+  Image? signatureImage;
   var buttonStyle = ButtonStyle(
     shape: MaterialStatePropertyAll(
       RoundedRectangleBorder(
@@ -23,6 +27,7 @@ class _ProofOfDeliveryPageState extends State<ProofOfDeliveryPage> {
       ),
     ),
   );
+  var noteTextController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +38,8 @@ class _ProofOfDeliveryPageState extends State<ProofOfDeliveryPage> {
           child: const Text('Proof Of Delivery'),
         ),
       ),
-      resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -51,8 +56,7 @@ class _ProofOfDeliveryPageState extends State<ProofOfDeliveryPage> {
                       child: OutlinedButton(
                         style: buttonStyle,
                         onPressed: () async {
-                          await Navigator.of(context).push(MaterialPageRoute(
-                              builder: (cxt) => const SignaturePage()));
+                          await getSignature(context);
                         },
                         child: const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -98,9 +102,12 @@ class _ProofOfDeliveryPageState extends State<ProofOfDeliveryPage> {
             // Wrap the TextField in ans Expanded widget
             Padding(
               padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
-              child: selectedImage != null
-                  ? Image.file(selectedImage!)
-                  : const TextField(),
+              child: TextField(
+                maxLines: 10,
+                controller: noteTextController,
+                decoration:
+                    const InputDecoration(hintText: 'Write any notes here...'),
+              ),
             ),
           ],
         ),
@@ -110,6 +117,23 @@ class _ProofOfDeliveryPageState extends State<ProofOfDeliveryPage> {
         onPrimaryButtonPressed: () {},
       ),
     );
+  }
+
+  Future<void> getSignature(BuildContext context) async {
+    var response = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (cxt) => const SignaturePage(),
+      ),
+    );
+
+    if (response != null && response is SignatureController) {
+      Uint8List? pngBytes = await response.toPngBytes();
+      if (pngBytes != null) {
+        setState(() {
+          signaturePngBytes = pngBytes;
+        });
+      }
+    }
   }
 
   Future _pickImage() async {

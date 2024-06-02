@@ -6,6 +6,7 @@ import 'package:vibration/vibration.dart';
 
 import '../colour_constants.dart';
 import '../models/crate.dart';
+import '../scan_crates_to_add.dart';
 
 class AddCrates extends StatefulWidget {
   final List<Crate> selectedCrateList;
@@ -364,25 +365,3 @@ class _AddCratesState extends State<AddCrates> {
 //     return;
 //   }
 
-void showTopSnackBar(
-    BuildContext context, String message, Color backgroundColor) {
-  // Create ScaffoldMessengerState to show the snackbar
-  ScaffoldMessengerState scaffoldMessengerState = ScaffoldMessenger.of(context);
-
-  // Remove any current snackbars
-  scaffoldMessengerState.removeCurrentSnackBar();
-
-  // Show the snackbar
-  scaffoldMessengerState.showSnackBar(
-    SnackBar(
-      content: Text(message),
-      backgroundColor: backgroundColor,
-      behavior: SnackBarBehavior.floating, // Required for top positioning
-      margin: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top, // Adjust for status bar
-        left: 16.0,
-        right: 16.0,
-      ),
-    ),
-  );
-}

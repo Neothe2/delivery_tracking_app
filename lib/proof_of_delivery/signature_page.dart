@@ -1,8 +1,11 @@
 import 'dart:typed_data';
 
 import 'package:delivery_tracking_app/colour_constants.dart';
+import 'package:delivery_tracking_app/crates/crates_add.dart';
 import 'package:flutter/material.dart';
 import 'package:signature/signature.dart';
+
+import '../scan_crates_to_add.dart';
 
 class SignaturePage extends StatefulWidget {
   const SignaturePage({super.key});
@@ -66,9 +69,12 @@ class _SignaturePageState extends State<SignaturePage> {
       );
 
   buildCheck(BuildContext context) => IconButton(
-        onPressed: () async {
-          if (signatureController.isNotEmpty) {
-            final signature = await exportSignature();
+        onPressed: () {
+          if (signatureController.points.isNotEmpty) {
+            final SignatureController signature = exportSignature();
+            Navigator.pop(context, signature);
+          } else {
+            showTopSnackBar(context, 'Sign first', Colors.grey);
           }
         },
         iconSize: 36,
@@ -89,15 +95,15 @@ class _SignaturePageState extends State<SignaturePage> {
         ),
       );
 
-  Future<Uint8List> exportSignature() async {
+  SignatureController exportSignature() {
     final exportController = SignatureController(
       penStrokeWidth: 2,
       penColor: Color(0xff020202),
       exportBackgroundColor: ColorPalette.backgroundWhite,
       points: signatureController.points,
     );
-    final signature = await exportController.toPngBytes();
+    final signature = exportController;
     exportController.dispose();
-    return signature!;
+    return signature;
   }
 }
