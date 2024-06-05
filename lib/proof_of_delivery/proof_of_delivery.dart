@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:delivery_tracking_app/colour_constants.dart';
 import 'package:delivery_tracking_app/proof_of_delivery/signature_page.dart';
+import 'package:delivery_tracking_app/scan_crates_to_add.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:signature/signature.dart';
@@ -114,7 +115,21 @@ class _ProofOfDeliveryPageState extends State<ProofOfDeliveryPage> {
       ),
       bottomNavigationBar: BottomBar(
         primaryButtonLabel: 'Submit',
-        onPrimaryButtonPressed: () {},
+        onPrimaryButtonPressed: () {
+          if (selectedImage != null &&
+              signaturePngBytes != null &&
+              signaturePngBytes!.isNotEmpty &&
+              noteTextController.text != "") {
+            Navigator.pop(context, {
+              "signature": signaturePngBytes,
+              "image": selectedImage,
+              "note": noteTextController.text,
+            });
+          } else {
+            //Show error snackbar
+            showTopSnackBar(context, 'Please fill in all fields', Colors.red);
+          }
+        },
       ),
     );
   }

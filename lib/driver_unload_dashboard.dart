@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:delivery_tracking_app/http_service.dart';
 import 'package:delivery_tracking_app/proof_of_delivery/proof_of_delivery.dart';
 import 'package:delivery_tracking_app/scan_crates.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import 'models/address.dart';
 import 'models/crate.dart';
@@ -131,11 +134,19 @@ class _DriverUnloadDashBoardState extends State<DriverUnloadDashBoard> {
                         crateList: deliveryBatch.crates,
                         title: "Unload crates from delivery batch",
                         afterScanningFinished: () async {
-                          await Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (cxt) => ProofOfDeliveryPage(),
-                            ),
-                          );
+                          var response = await getProofOfDelivery(context);
+
+                          if (response != null) {
+                            bool success = await deliver(
+                              deliveryBatch,
+                              response['note'],
+                              response['image'],
+                              response['signature'],
+                            );
+                            if (success) {
+                              await getDeliveryBatches();
+                            }
+                          }
                           // var unloadResponse = await HttpService().update(
                           //   'app/vehicles/${widget.driver.currentVehicle!.id}/unload_delivery_batch/',
                           //   {"id": deliveryBatch.id},
@@ -181,6 +192,55 @@ class _DriverUnloadDashBoardState extends State<DriverUnloadDashBoard> {
         ),
       ),
     );
+  }
+
+  Future<dynamic> getProofOfDelivery(BuildContext context) async {
+    return await Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (cxt) => ProofOfDeliveryPage(),
+      ),
+    );
+  }
+
+  Future<bool> deliver(DeliveryBatch deliveryBatch, String note, File image,
+      Uint8List signatureImageBytes) async {
+    var request = http.MultipartRequest(
+      "PUT",
+      Uri.parse(
+        '${HttpService().baseUrl}/app/vehicles/${widget.driver.currentVehicle!.id}/unload_delivery_batch/',
+      ),
+    );
+
+    request.fields['id'] = '${deliveryBatch.id}';
+    request.fields['note'] = note;
+
+    request.headers['Content-Type'] =
+        (await HttpService().headers)['Content-Type'];
+
+    request.headers['Accept'] = (await HttpService().headers)['Accept'];
+
+    request.headers['Authorization'] =
+        (await HttpService().headers)['Authorization'];
+
+    var signatureImage = http.MultipartFile.fromBytes(
+      'proof_of_delivery_signature',
+      signatureImageBytes,
+      filename: 'signature.png',
+    );
+
+    var selectedImage = http.MultipartFile.fromBytes(
+      'proof_of_delivery_image',
+      image.readAsBytesSync(),
+      filename: 'selected_image.png',
+    );
+
+    request.files.add(signatureImage);
+    request.files.add(selectedImage);
+
+    var response = await http.Response.fromStream(await request.send());
+
+    //return true if response was successful, return false if not
+    return response.statusCode == 200;
   }
 }
 

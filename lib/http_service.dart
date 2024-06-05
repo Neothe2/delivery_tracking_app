@@ -22,6 +22,10 @@ class HttpService {
     _accessToken = token;
   }
 
+  get baseUrl => _baseUrl;
+
+  get headers => _headers;
+
   Future<Map<String, String>> get _headers async {
     var accessToken = await SecureTokenStorage().read(key: 'access');
     return {
@@ -50,15 +54,21 @@ class HttpService {
   Future<http.Response> update(
       String endpoint, Map<String, dynamic> body) async {
     final url = Uri.parse('$_baseUrl/$endpoint');
-    return await http.put(url,
-        headers: await _headers, body: json.encode(body));
+    return await http.put(
+      url,
+      headers: await _headers,
+      body: json.encode(body),
+    );
   }
 
   Future<http.Response> partial_update(
       String endpoint, Map<String, dynamic> body) async {
     final url = Uri.parse('$_baseUrl/$endpoint');
-    return await http.patch(url,
-        headers: await _headers, body: json.encode(body));
+    return await http.patch(
+      url,
+      headers: await _headers,
+      body: json.encode(body),
+    );
   }
 
   Future<http.Response> delete(String endpoint) async {
