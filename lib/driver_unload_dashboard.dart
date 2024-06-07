@@ -134,26 +134,29 @@ class _DriverUnloadDashBoardState extends State<DriverUnloadDashBoard> {
                         crateList: deliveryBatch.crates,
                         title: "Unload crates from delivery batch",
                         afterScanningFinished: () async {
-                          var response = await getProofOfDelivery(context);
+                          // var response = await getProofOfDelivery(context);
 
-                          if (response != null) {
-                            bool success = await deliver(
-                              deliveryBatch,
-                              response['note'],
-                              response['image'],
-                              response['signature'],
-                            );
-                            if (success) {
-                              await getDeliveryBatches();
-                            }
-                          }
-                          // var unloadResponse = await HttpService().update(
-                          //   'app/vehicles/${widget.driver.currentVehicle!.id}/unload_delivery_batch/',
-                          //   {"id": deliveryBatch.id},
-                          // );
-                          // if (unloadResponse.statusCode == 200) {
-                          //   await getDeliveryBatches();
+                          // if (response != null) {
+                          //   bool success = await deliver(
+                          //     deliveryBatch,
+                          //     response['note'],
+                          //     response['image'],
+                          //     response['signature'],
+                          //   );
+                          //   if (success) {
+                          //     await getDeliveryBatches();
+                          //   }
                           // }
+
+                          var unloadResponse = await HttpService().update(
+                            'app/vehicles/${widget.driver.currentVehicle!.id}/unload_delivery_batch/',
+                            {"id": deliveryBatch.id},
+                          );
+                          if (unloadResponse.statusCode == 200) {
+                            await getDeliveryBatches();
+                          }
+
+                          Navigator.pop(context);
                         },
                       ),
                     ),
