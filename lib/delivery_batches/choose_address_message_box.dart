@@ -56,7 +56,7 @@ class _ChooseAddressMessageBoxState extends State<ChooseAddressMessageBox> {
               onChanged: (dynamic value) {
                 setState(() {
                   selectedValue = value;
-                  // widget.onSelectionChanged(selectedValue);
+                  widget.onSelectionChanged(selectedValue);
                 });
               },
               // Check if the current item's value matches the selectedValue

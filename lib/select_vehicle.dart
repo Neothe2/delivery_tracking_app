@@ -57,6 +57,7 @@ class _SelectVehiclePageState extends State<SelectVehiclePage> {
     for (var vehicle in vehicleList) {
       if (vehicle.id == widget.preSelectedTruckId) {
         preselectedvalue = vehicle;
+        selectedVehicleId = preselectedvalue.id;
       }
 
       print(preselectedvalue);

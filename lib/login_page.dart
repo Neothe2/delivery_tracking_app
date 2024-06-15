@@ -210,9 +210,11 @@ class _LoginPageState extends State<LoginPage> {
                                 ], borderRadius: BorderRadius.circular(999)),
                                 child: OutlinedButton(
                                   style: ButtonStyle(
-                                      elevation: MaterialStatePropertyAll(0),
-                                      minimumSize: MaterialStatePropertyAll(
-                                          Size(180, 50))),
+                                    elevation: MaterialStatePropertyAll(0),
+                                    minimumSize: MaterialStatePropertyAll(
+                                      Size(180, 50),
+                                    ),
+                                  ),
                                   onPressed: () async {
                                     if (_formKey.currentState!.validate()) {
                                       await _login();
@@ -295,7 +297,7 @@ class JWTAuthenticationService implements AuthenticationService {
       final response = await http.post(
         debugMode
             ? Uri.parse('http://10.0.2.2:81/auth/jwt/refresh')
-            : Uri.parse('http://108.181.201.104/auth/jwt/refresh'),
+            : Uri.parse('http://108.181.201.104:81/auth/jwt/refresh'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',

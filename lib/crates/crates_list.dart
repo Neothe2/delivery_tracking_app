@@ -102,13 +102,15 @@ class _CratesListPageState extends State<CratesListPage> {
             padding: EdgeInsets.only(right: 30),
             child: TextField(
               onChanged: (value) => _searchItems(value),
-              decoration: InputDecoration(
-                contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                // Remove padding for better alignment
-                border: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.transparent)),
-                // You can customize the border and other decorations here
-              ),
+              decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                  // Remove padding for better alignment
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.transparent),
+                  ),
+                  hintText: 'Search...'
+                  // You can customize the border and other decorations here
+                  ),
             ),
           ),
         ],
@@ -118,67 +120,77 @@ class _CratesListPageState extends State<CratesListPage> {
           crates = [];
           await getCrates();
         },
-        child: ListView.builder(
-          itemCount: filteredCrates.length,
-          itemBuilder: (context, index) {
-            final crate = filteredCrates[index];
-            return GestureDetector(
-              onTap: () async {},
-              child: GestureDetector(
-                onTap: () async {
-                  var response = await navigateToDetailPage(context, crate);
-                  if (response == true) {
-                    crates = [];
-                    getCrates();
-                  }
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: const Border.fromBorderSide(
-                        BorderSide(color: Colors.grey),
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: ListTile(
-                      title: Text("ID: ${crate.crateId}"),
-                      trailing: IconButton(
-                        padding: EdgeInsets.zero,
-                        onPressed: () async {
-                          bool confirmation = await redConfirmationModal(
-                              context: context,
-                              header: 'Are You Sure?',
-                              message:
-                                  "Are you sure you want to delete this crate?");
-                          if (confirmation == true) {
-                            var response = await HttpService()
-                                .delete('app/crates/${crate.crateId}/');
-                            print(response.body);
-                            print(response.statusCode);
-                            setState(() {
-                              crates.remove(crate);
-                            });
-                            if (response.statusCode == 204 ||
-                                response.statusCode == 200) {
-                            } else {
-                              crates = [];
-                              getCrates();
-                            }
-                          }
-                        },
-                        icon: const Icon(
-                          Icons.close,
-                          color: Colors.red,
+        child: (crates.isEmpty)
+            ? Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'There are no crates. Press the + button to add one.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey.shade700),
+                ),
+              )
+            : ListView.builder(
+                itemCount: filteredCrates.length,
+                itemBuilder: (context, index) {
+                  final crate = filteredCrates[index];
+                  return GestureDetector(
+                    onTap: () async {},
+                    child: GestureDetector(
+                      onTap: () async {
+                        var response =
+                            await navigateToDetailPage(context, crate);
+                        if (response == true) {
+                          crates = [];
+                          getCrates();
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: const Border.fromBorderSide(
+                              BorderSide(color: Colors.grey),
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: ListTile(
+                            title: Text("ID: ${crate.crateId}"),
+                            trailing: IconButton(
+                              padding: EdgeInsets.zero,
+                              onPressed: () async {
+                                bool confirmation = await redConfirmationModal(
+                                    context: context,
+                                    header: 'Are You Sure?',
+                                    message:
+                                        "Are you sure you want to delete this crate?");
+                                if (confirmation == true) {
+                                  var response = await HttpService()
+                                      .delete('app/crates/${crate.crateId}/');
+                                  print(response.body);
+                                  print(response.statusCode);
+                                  setState(() {
+                                    crates.remove(crate);
+                                  });
+                                  if (response.statusCode == 204 ||
+                                      response.statusCode == 200) {
+                                  } else {
+                                    crates = [];
+                                    getCrates();
+                                  }
+                                }
+                              },
+                              icon: const Icon(
+                                Icons.close,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
-            );
-          },
-        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {

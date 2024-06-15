@@ -99,88 +99,101 @@ class _AllocateVehicleToDeliveryBatchState
         onRefresh: () async {
           await getDeliveryBatches();
         },
-        child: ListView.builder(
-          itemCount: deliveryBatches.length,
-          itemBuilder: (context, index) {
-            final deliveryBatch = deliveryBatches[index];
-            return GestureDetector(
-              onTap: () async {
-                // var response = await Navigator.of(context).push(
-                //   MaterialPageRoute(
-                //     builder: (cxt) => ContactDetailPage(
-                //       contact: deliveryBatch,
-                //     ),
-                //   ),
-                // );
-                // if (response is FormResponse) {
-                //   if (response.type == ResponseType.delete) {
-                //     setState(() {
-                //       contacts.remove(response.body);
-                //     });
-                //   } else if (response.type == ResponseType.edit) {
-                //     setState(() {
-                //       var index = contacts.indexOf(deliveryBatch);
-                //       contacts[index] = response.body;
-                //     });
-                //   }
-                // }
-              },
-              child: GestureDetector(
-                onTap: () async {
-                  int? preselectedVehicle = (deliveryBatch.vehicle != null)
-                      ? deliveryBatch.vehicle!.id
-                      : null;
-                  var selectedVehicleId = await Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (cxt) {
-                        return SelectVehiclePage(
-                            preSelectedTruckId: preselectedVehicle);
+        child: (deliveryBatches.isEmpty)
+            ? Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'There are no delivery batches.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey.shade700),
+                ),
+              )
+            : ListView.builder(
+                itemCount: deliveryBatches.length,
+                itemBuilder: (context, index) {
+                  final deliveryBatch = deliveryBatches[index];
+                  return GestureDetector(
+                    onTap: () async {
+                      // var response = await Navigator.of(context).push(
+                      //   MaterialPageRoute(
+                      //     builder: (cxt) => ContactDetailPage(
+                      //       contact: deliveryBatch,
+                      //     ),
+                      //   ),
+                      // );
+                      // if (response is FormResponse) {
+                      //   if (response.type == ResponseType.delete) {
+                      //     setState(() {
+                      //       contacts.remove(response.body);
+                      //     });
+                      //   } else if (response.type == ResponseType.edit) {
+                      //     setState(() {
+                      //       var index = contacts.indexOf(deliveryBatch);
+                      //       contacts[index] = response.body;
+                      //     });
+                      //   }
+                      // }
+                    },
+                    child: GestureDetector(
+                      onTap: () async {
+                        int? preselectedVehicle =
+                            (deliveryBatch.vehicle != null)
+                                ? deliveryBatch.vehicle!.id
+                                : null;
+                        var selectedVehicleId =
+                            await Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (cxt) {
+                              return SelectVehiclePage(
+                                  preSelectedTruckId: preselectedVehicle);
+                            },
+                          ),
+                        );
+                        if (selectedVehicleId != null &&
+                            selectedVehicleId != -1) {
+                          var response = await HttpService().create(
+                            'app/vehicles/$selectedVehicleId/assign_delivery_batch/',
+                            {"id": deliveryBatch.id},
+                          );
+                          if (response.statusCode == 400) {
+                            showError(
+                                "You don't have enough subscribed vehicles. Contact your administrator to but more subscribed vehicles.",
+                                context);
+                          }
+                          if (response.statusCode == 200) {
+                            deliveryBatches = [];
+                            getDeliveryBatches();
+                          }
+                        }
                       },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: const Border.fromBorderSide(
+                              BorderSide(color: Colors.grey),
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              foregroundColor: Colors.white,
+                              child: Text(
+                                  deliveryBatch.id.toString().toUpperCase()),
+                            ),
+                            title: Text("To: ${deliveryBatch.address.value}"),
+                            subtitle: (deliveryBatch.vehicle != null)
+                                ? Text(
+                                    '${deliveryBatch.vehicle!.type}: ${deliveryBatch.vehicle!.licensePlate}')
+                                : const Text('No vehicle assigned'),
+                            trailing: const Icon(Icons.chevron_right_sharp),
+                          ),
+                        ),
+                      ),
                     ),
                   );
-                  if (selectedVehicleId != null && selectedVehicleId != -1) {
-                    var response = await HttpService().create(
-                      'app/vehicles/$selectedVehicleId/assign_delivery_batch/',
-                      {"id": deliveryBatch.id},
-                    );
-                    if (response.statusCode == 400) {
-                      showError(
-                          "You don't have enough subscribed vehicles. Contact your administrator to but more subscribed vehicles.",
-                          context);
-                    }
-                    if (response.statusCode == 200) {
-                      deliveryBatches = [];
-                      getDeliveryBatches();
-                    }
-                  }
                 },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: const Border.fromBorderSide(
-                        BorderSide(color: Colors.grey),
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        foregroundColor: Colors.white,
-                        child: Text(deliveryBatch.id.toString().toUpperCase()),
-                      ),
-                      title: Text("To: ${deliveryBatch.address.value}"),
-                      subtitle: (deliveryBatch.vehicle != null)
-                          ? Text(
-                              '${deliveryBatch.vehicle!.type}: ${deliveryBatch.vehicle!.licensePlate}')
-                          : const Text('No vehicle assigned'),
-                      trailing: const Icon(Icons.chevron_right_sharp),
-                    ),
-                  ),
-                ),
               ),
-            );
-          },
-        ),
       ),
     );
   }

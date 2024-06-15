@@ -94,6 +94,9 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
           ? SingleChildScrollView(
               child: Center(
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0),

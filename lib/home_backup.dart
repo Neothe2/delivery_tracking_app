@@ -460,8 +460,7 @@ class _HomePageState extends State<HomePage> {
                                 ? const SizedBox(height: 182)
                                 : (driver!.currentVehicle != null)
                                     ? const SizedBox(
-                                        height:
-                                            100, //Spacing between login when done
+                                        height: 272,
                                       )
                                     : const SizedBox(
                                         height: 165,

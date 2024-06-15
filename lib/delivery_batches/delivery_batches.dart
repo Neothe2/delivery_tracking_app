@@ -97,50 +97,58 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
         onRefresh: () async {
           await getDeliveryBatches();
         },
-        child: ListView.builder(
-          itemCount: deliveryBatches.length,
-          itemBuilder: (context, index) {
-            final deliveryBatch = deliveryBatches[index];
-            return GestureDetector(
-              onTap: () async {},
-              child: GestureDetector(
-                onTap: () async {
-                  var response = await Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (cxt) => DeliveryBatchDetail(
-                        deliveryBatch: deliveryBatch,
+        child: (deliveryBatches.isEmpty)
+            ? Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'There are no delivery batches. Press the + button to add one.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey.shade700),
+                ),
+              )
+            : ListView.builder(
+                itemCount: deliveryBatches.length,
+                itemBuilder: (context, index) {
+                  final deliveryBatch = deliveryBatches[index];
+
+                  return GestureDetector(
+                    onTap: () async {
+                      var response = await Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (cxt) => DeliveryBatchDetail(
+                            deliveryBatch: deliveryBatch,
+                          ),
+                        ),
+                      );
+                      if (response == true) {
+                        deliveryBatches = [];
+                        getDeliveryBatches();
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: const Border.fromBorderSide(
+                            BorderSide(color: Colors.grey),
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            foregroundColor: Colors.white,
+                            child:
+                                Text(deliveryBatch.id.toString().toUpperCase()),
+                          ),
+                          title: Text("To: ${deliveryBatch.customer.name}"),
+                          subtitle: Text(deliveryBatch.address.value),
+                          trailing: const Icon(Icons.chevron_right_sharp),
+                        ),
                       ),
                     ),
                   );
-                  if (response == true) {
-                    deliveryBatches = [];
-                    getDeliveryBatches();
-                  }
                 },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: const Border.fromBorderSide(
-                        BorderSide(color: Colors.grey),
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        foregroundColor: Colors.white,
-                        child: Text(deliveryBatch.id.toString().toUpperCase()),
-                      ),
-                      title: Text("To: ${deliveryBatch.customer.name}"),
-                      subtitle: Text(deliveryBatch.address.value),
-                      trailing: const Icon(Icons.chevron_right_sharp),
-                    ),
-                  ),
-                ),
               ),
-            );
-          },
-        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
