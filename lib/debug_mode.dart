@@ -1,1 +1,1 @@
-const debugMode = false;
+const debugMode = true;

@@ -41,7 +41,7 @@ class _DriverUnloadDashBoardState extends State<DriverUnloadDashBoard> {
     // setState(() {
     deliveryBatches = [];
     for (var deliveryBatch in decodedBody['delivery_batches']) {
-      deliveryBatches.add(parseDeliveryBatch(deliveryBatch));
+      deliveryBatches.add(DeliveryBatch.fromJson(deliveryBatch));
     }
 
     if (deliveryBatches.isEmpty) {
@@ -70,12 +70,12 @@ class _DriverUnloadDashBoardState extends State<DriverUnloadDashBoard> {
     }
 
     return DeliveryBatch(
-      deliveryBatch['id'],
-      crates,
-      parseVehicle(deliveryBatch['vehicle']),
-      parseCustomer(deliveryBatch['customer']),
-      parseAddress(deliveryBatch['delivery_address']),
-    );
+        deliveryBatch['id'],
+        crates,
+        parseVehicle(deliveryBatch['vehicle']),
+        parseCustomer(deliveryBatch['customer']),
+        parseAddress(deliveryBatch['delivery_address']),
+        draft: deliveryBatch['draft']);
   }
 
   Customer parseCustomer(Map<String, dynamic> customerJson) {
@@ -183,8 +183,8 @@ class _DriverUnloadDashBoardState extends State<DriverUnloadDashBoard> {
                         foregroundColor: Colors.white,
                         child: Text(deliveryBatch.id.toString().toUpperCase()),
                       ),
-                      title: Text("To: ${deliveryBatch.customer.name}"),
-                      subtitle: Text(deliveryBatch.address.value),
+                      title: Text("To: ${deliveryBatch.customer!.name}"),
+                      subtitle: Text(deliveryBatch.address!.value),
                       trailing: const Icon(Icons.chevron_right_sharp),
                     ),
                   ),

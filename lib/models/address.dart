@@ -10,4 +10,8 @@ class Address {
 
   @override
   int get hashCode => Object.hash(id, value);
+
+  factory Address.fromJson(Map<String, dynamic> json) {
+    return Address(json['id'], json['value']);
+  }
 }

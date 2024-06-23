@@ -29,12 +29,13 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
 
   getDeliveryBatches() async {
     deliveryBatches = [];
+    await HttpService().delete('app/delivery_batches/6/');
     var response = await HttpService().get('app/delivery_batches/');
     var decodedBody = jsonDecode(response.body);
     // setState(() {
     setState(() {
       for (var deliveryBatch in decodedBody) {
-        deliveryBatches.add(parseDeliveryBatch(deliveryBatch));
+        deliveryBatches.add(DeliveryBatch.fromJson(deliveryBatch));
       }
     });
     // });
@@ -47,12 +48,12 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
     }
 
     return DeliveryBatch(
-      deliveryBatch['id'],
-      crates,
-      parseVehicle(deliveryBatch['vehicle']),
-      parseCustomer(deliveryBatch['customer']),
-      parseAddress(deliveryBatch['delivery_address']),
-    );
+        deliveryBatch['id'],
+        crates,
+        parseVehicle(deliveryBatch['vehicle']),
+        parseCustomer(deliveryBatch['customer']),
+        parseAddress(deliveryBatch['delivery_address']),
+        draft: deliveryBatch['draft']);
   }
 
   Customer parseCustomer(Map<String, dynamic> customerJson) {
@@ -140,8 +141,11 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
                             child:
                                 Text(deliveryBatch.id.toString().toUpperCase()),
                           ),
-                          title: Text("To: ${deliveryBatch.customer.name}"),
-                          subtitle: Text(deliveryBatch.address.value),
+                          title: Text(
+                              "${deliveryBatch.draft ? "{DRAFT}" : ""}To: ${deliveryBatch.draft ? "NONE" : deliveryBatch.customer!.name}"),
+                          subtitle: Text(deliveryBatch.draft
+                              ? "NONE"
+                              : deliveryBatch.address!.value),
                           trailing: const Icon(Icons.chevron_right_sharp),
                         ),
                       ),

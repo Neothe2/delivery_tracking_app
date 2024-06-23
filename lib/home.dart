@@ -30,7 +30,10 @@ class _HomePageState extends State<HomePage> {
   // List<String> _groups = [];
 
   // String _username = '...';
-  late User user;
+
+  //Initialized an empty user to block the exception but the correct user will be loaded later.
+  User user = User(0, '', Contact(0, ''), []);
+  bool userLoaded = false;
 
   List<Widget> listTiles = [];
   Driver? driver;
@@ -78,6 +81,7 @@ class _HomePageState extends State<HomePage> {
       var contactData = body['contact'];
       var contact = Contact(contactData['id'], contactData['name']);
       user = User(body['id'], body['username'], contact, groups);
+      userLoaded = true;
 
       // _username = body['username'];
       populateMenuItems();
@@ -159,7 +163,8 @@ class _HomePageState extends State<HomePage> {
           child: Center(
             // Center the content horizontally
             child: (!_isLoading)
-                ? (driverLoaded || !user.groups.contains('driver'))
+                ? (driverLoaded ||
+                        (userLoaded && !user.groups.contains('driver')))
                     ? Column(
                         mainAxisAlignment:
                             MainAxisAlignment.center, // Center vertically
@@ -171,10 +176,11 @@ class _HomePageState extends State<HomePage> {
                             Padding(
                               padding: const EdgeInsets.all(20.0),
                               child: SizedBox(
-                                width:
-                                    (driver!.currentVehicle!.isLoaded == true)
-                                        ? 320
-                                        : 260,
+                                width: (driver!.currentVehicle != null &&
+                                        driver!.currentVehicle!.isLoaded ==
+                                            true)
+                                    ? 320
+                                    : 260,
                                 child: Container(
                                   // Add bounce effect
                                   decoration: BoxDecoration(
@@ -255,7 +261,8 @@ class _HomePageState extends State<HomePage> {
                                 )
                               : (driver != null &&
                                       driverLoaded &&
-                                      cratesToBeLoaded.isEmpty)
+                                      cratesToBeLoaded.isEmpty &&
+                                      driver!.currentVehicle != null)
                                   ? const SizedBox(
                                       width: 260,
                                       child: Column(
@@ -465,7 +472,7 @@ class _HomePageState extends State<HomePage> {
                                       )
                                     : const SizedBox(
                                         height: 165,
-                                      ),
+                                      ), //spacing between logout when no truck
 
                           // Logout button
                           OutlinedButton(

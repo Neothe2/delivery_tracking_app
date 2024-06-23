@@ -21,4 +21,12 @@ class Customer {
 
     return list;
   }
+
+  factory Customer.fromJson(Map<String, dynamic> json) {
+    List<Address> addresses = [];
+    for (var addressJson in json['addresses']) {
+      addresses.add(Address.fromJson(addressJson));
+    }
+    return Customer(json['id'], json['name'], json['phone_number'], addresses);
+  }
 }
