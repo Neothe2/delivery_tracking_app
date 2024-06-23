@@ -22,6 +22,8 @@ class AddDeliveryBatch extends StatefulWidget {
   State<AddDeliveryBatch> createState() => _AddDeliveryBatchState();
 }
 
+enum SaveStates { discard, cancel, saveAsDraft, save }
+
 class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
   //Field Initializations
   List<Crate> crateList = [];
@@ -124,49 +126,77 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
     // }
   }
 
+  Future<SaveStates> askSaveConfirmation(bool showSaveButton) async {
+    // Use a completer to handle the result of the dialog
+    // final completer = Completer<SaveStates>();
+    SaveStates saveState = await showDialog(
+      context: context, // Assuming you have a navigatorKey
+      builder: (context) => AlertDialog(
+        title: const Text('Save Confirmation'),
+        content: const Text('What would you like to do?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, SaveStates.discard),
+            child: const Text('Discard'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, SaveStates.cancel),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, SaveStates.saveAsDraft),
+            child: const Text('Save As Draft'),
+          ),
+          if (showSaveButton) // Only show Save button if showSaveButton is true
+            TextButton(
+              onPressed: () => Navigator.pop(context, SaveStates.save),
+              child: const Text('Save'),
+            ),
+        ],
+      ),
+    );
+
+    // Return the completed state
+    return saveState;
+  }
+
   @override
   Widget build(BuildContext context) {
-    print(crateList);
-    List<MapEntry<String, dynamic>> selectableListViewList = crateList
-        .map(
-          (e) => MapEntry("Id: ${e.crateId}", e),
-        )
-        .toList();
+    // print(crateList);
+    // List<MapEntry<String, dynamic>> selectableListViewList = crateList
+    //     .map(
+    //       (e) => MapEntry("Id: ${e.crateId}", e),
+    //     )
+    //     .toList();
 
-    List<DropdownMenuEntry<Customer>> selectableCustomerListViewList =
-        customerList
-            .map(
-              (e) => DropdownMenuEntry(value: e, label: e.name),
-            )
-            .toList();
-    return PopScope(
-      onPopInvoked: (bool didPop) async {
-        if (didPop) {
-          // await _saveAsDraft();
-        }
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Add Delivery Batch'),
-        ),
-        resizeToAvoidBottomInset: true,
-        body: cratesLoaded
-            ? SingleChildScrollView(
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      ..._buildSelectCratesButton(),
-                      ..._buildSelectCustomerButton(),
-                    ],
-                  ),
-                ),
-              )
-            : const Center(child: CircularProgressIndicator()),
-        bottomNavigationBar: _buildBottomNavigationBar(),
+    // List<DropdownMenuEntry<Customer>> selectableCustomerListViewList =
+    //     customerList
+    //         .map(
+    //           (e) => DropdownMenuEntry(value: e, label: e.name),
+    //         )
+    //         .toList();
+    return Scaffold(
+      appBar: AppBar(
+        leading: _buildCustomBackButton(),
+        title: const Text('Add Delivery Batch'),
       ),
+      resizeToAvoidBottomInset: true,
+      body: cratesLoaded
+          ? SingleChildScrollView(
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ..._buildSelectCratesButton(),
+                    ..._buildSelectCustomerButton(),
+                  ],
+                ),
+              ),
+            )
+          : const Center(child: CircularProgressIndicator()),
+      bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
 
@@ -203,6 +233,34 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
             child: const Text('Select Crates')),
       )
     ];
+  }
+
+  _buildCustomBackButton() {
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) {
+          return;
+        }
+
+        SaveStates saveState = await askSaveConfirmation(true);
+        print(saveState);
+        switch (saveState) {
+          case SaveStates.discard:
+            Navigator.pop(context);
+          case SaveStates.cancel:
+            return;
+          case SaveStates.saveAsDraft:
+            await _saveAsDraft();
+            Navigator.pop(context);
+          case SaveStates.save:
+            Navigator.pop(context);
+        }
+      },
+      child: BackButton(
+        color: Colors.blueAccent,
+      ),
+    );
   }
 
   _buildSelectCustomerButton() {
@@ -253,18 +311,7 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
         if (selectedCustomer != null &&
             selectedCrates.isNotEmpty &&
             selectedAddress != null) {
-          var response = await HttpService().create('app/delivery_batches/', {
-            "crates": selectedCrates.map((e) => e.crateId).toList(),
-            "customer": selectedCustomer!.id,
-            "delivery_address": selectedAddress!.id,
-            "draft": false
-          });
-          if (response.statusCode == 400) {
-            if (jsonDecode(response.body)['delivery_address'] != null) {
-              await showError(
-                  jsonDecode(response.body)['delivery_address'][0], context);
-            }
-          }
+          await _save();
           Navigator.pop(context, true);
         } else {
           setState(() {
@@ -278,6 +325,21 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
       },
       secondaryButtonIcon: Icons.save,
     );
+  }
+
+  Future<void> _save() async {
+    var response = await HttpService().create('app/delivery_batches/', {
+      "crates": selectedCrates.map((e) => e.crateId).toList(),
+      "customer": selectedCustomer!.id,
+      "delivery_address": selectedAddress!.id,
+      "draft": false
+    });
+    if (response.statusCode == 400) {
+      if (jsonDecode(response.body)['delivery_address'] != null) {
+        await showError(
+            jsonDecode(response.body)['delivery_address'][0], context);
+      }
+    }
   }
 
   @override
