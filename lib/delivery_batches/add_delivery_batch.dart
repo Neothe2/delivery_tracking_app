@@ -6,6 +6,9 @@ import 'package:delivery_tracking_app/custom_bottom_bar.dart';
 import 'package:delivery_tracking_app/delivery_batches/select_crates_page.dart';
 import 'package:delivery_tracking_app/delivery_batches/select_customer_page.dart';
 import 'package:delivery_tracking_app/http_service.dart';
+import 'package:delivery_tracking_app/models/delivery_batch.dart';
+import 'package:delivery_tracking_app/models/delivery_batch_draft.dart';
+import 'package:delivery_tracking_app/repositories/hive_delivery_batch_draft_repository.dart';
 import 'package:delivery_tracking_app/searchable_list.dart';
 import 'package:flutter/material.dart';
 
@@ -44,6 +47,11 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
   StreamController<List<Crate>> selectionStreamController =
       StreamController<List<Crate>>();
   TextEditingController customerDropDownController = TextEditingController();
+  var deliveryBatchDraftRepository = HiveDeliveryBatchDraftRepository();
+
+  bool get _everythingFilledIn => (selectedCustomer != null &&
+      selectedCrates.isNotEmpty &&
+      selectedAddress != null);
 
   @override
   void initState() {
@@ -92,44 +100,32 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
 
   //TODO: refactor
   Future<void> _saveAsDraft() async {
-    if (selectedCustomer != null ||
+    var anyOneThingFilledIn = selectedCustomer != null ||
         selectedCrates.isNotEmpty ||
-        selectedAddress != null) {
-      print("Saved as draft.");
-      var response = await HttpService().create('app/delivery_batches/', {
-        "crates": selectedCrates.map((e) => e.crateId).toList(),
-        "customer": selectedCustomer != null ? selectedCustomer!.id : "",
-        "delivery_address": selectedAddress != null ? selectedAddress!.id : "",
-        "draft": true
-      });
-      if (response.statusCode == 400) {
-        if (jsonDecode(response.body)['delivery_address'] != null) {
-          await showError(
-              jsonDecode(response.body)['delivery_address'][0], context);
-        }
-      }
+        selectedAddress != null;
+
+    if (anyOneThingFilledIn) {
+      var selectedCrateIds = selectedCrates.map((e) => e.crateId).toList();
+      var deliveryBatchDraft = DeliveryBatchDraft(
+        selectedCrateIds,
+        selectedCustomer?.id,
+        selectedAddress?.id,
+      );
+
+      deliveryBatchDraftRepository.saveDraft(deliveryBatchDraft);
+
+      print(await deliveryBatchDraftRepository.getAllDrafts());
+
+      Navigator.pop(context);
     } else {
       print("Not saved as draft because no data.");
     }
-
-    // var response = await HttpService().create('app/delivery_batches/', {
-    //   "crates": selectedCrates.map((e) => e.crateId).toList(),
-    //   "customer": selectedCustomer!.id,
-    //   "delivery_address": selectedAddress!.id,
-    //   "draft": true
-    // });
-    // if (response.statusCode == 400) {
-    //   if (jsonDecode(response.body)['delivery_address'] != null) {
-    //     await showError(
-    //         jsonDecode(response.body)['delivery_address'][0], context);
-    //   }
-    // }
   }
 
-  Future<SaveStates> askSaveConfirmation(bool showSaveButton) async {
+  Future<SaveStates> askSaveConfirmation() async {
     // Use a completer to handle the result of the dialog
     // final completer = Completer<SaveStates>();
-    SaveStates saveState = await showDialog(
+    var response = await showDialog(
       context: context, // Assuming you have a navigatorKey
       builder: (context) => AlertDialog(
         title: const Text('Save Confirmation'),
@@ -147,34 +143,69 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
             onPressed: () => Navigator.pop(context, SaveStates.saveAsDraft),
             child: const Text('Save As Draft'),
           ),
-          if (showSaveButton) // Only show Save button if showSaveButton is true
-            TextButton(
-              onPressed: () => Navigator.pop(context, SaveStates.save),
-              child: const Text('Save'),
-            ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, SaveStates.save),
+            child: const Text('Save'),
+          ),
         ],
       ),
     );
 
-    // Return the completed state
-    return saveState;
+    if (response == null) {
+      return SaveStates.cancel;
+    } else {
+      return response;
+
+      // Return the completed state
+    }
+  }
+
+  _buildCustomBackButton() {
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) {
+          return;
+        }
+
+        SaveStates saveState = await askSaveConfirmation();
+
+        print(saveState);
+
+        switch (saveState) {
+          case SaveStates.discard:
+            // TODO: show confirmation modal for discard
+            Navigator.pop(context);
+
+          case SaveStates.cancel:
+            await executeTempCode();
+            return;
+
+          case SaveStates.saveAsDraft:
+            await _saveAsDraft();
+
+          case SaveStates.save:
+            await _save();
+        }
+      },
+      child: BackButton(
+        color: Colors.blueAccent,
+      ),
+    );
+  }
+
+  Future<void> executeTempCode() async {
+    // await deliveryBatchDraftRepository.clearAll();
+    List<DeliveryBatchDraft> allDrafts =
+        await deliveryBatchDraftRepository.getAllDrafts();
+    print(allDrafts.length);
+    for (var draft in allDrafts) {
+      print(draft.crateIds);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // print(crateList);
-    // List<MapEntry<String, dynamic>> selectableListViewList = crateList
-    //     .map(
-    //       (e) => MapEntry("Id: ${e.crateId}", e),
-    //     )
-    //     .toList();
-
-    // List<DropdownMenuEntry<Customer>> selectableCustomerListViewList =
-    //     customerList
-    //         .map(
-    //           (e) => DropdownMenuEntry(value: e, label: e.name),
-    //         )
-    //         .toList();
     return Scaffold(
       appBar: AppBar(
         leading: _buildCustomBackButton(),
@@ -235,34 +266,6 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
     ];
   }
 
-  _buildCustomBackButton() {
-    return PopScope(
-      canPop: false,
-      onPopInvoked: (didPop) async {
-        if (didPop) {
-          return;
-        }
-
-        SaveStates saveState = await askSaveConfirmation(true);
-        print(saveState);
-        switch (saveState) {
-          case SaveStates.discard:
-            Navigator.pop(context);
-          case SaveStates.cancel:
-            return;
-          case SaveStates.saveAsDraft:
-            await _saveAsDraft();
-            Navigator.pop(context);
-          case SaveStates.save:
-            Navigator.pop(context);
-        }
-      },
-      child: BackButton(
-        color: Colors.blueAccent,
-      ),
-    );
-  }
-
   _buildSelectCustomerButton() {
     return [
       Padding(
@@ -308,16 +311,8 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
     return ThreeButtonBottomBar(
       primaryButtonLabel: 'Create',
       onPrimaryButtonPressed: () async {
-        if (selectedCustomer != null &&
-            selectedCrates.isNotEmpty &&
-            selectedAddress != null) {
-          await _save();
-          Navigator.pop(context, true);
-        } else {
-          setState(() {
-            addClicked = true;
-          });
-        }
+        await _save();
+        Navigator.pop(context, true);
       },
       secondaryButtonLabel: 'Save As Draft',
       onSecondaryButtonPressed: () {
@@ -328,17 +323,24 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
   }
 
   Future<void> _save() async {
-    var response = await HttpService().create('app/delivery_batches/', {
-      "crates": selectedCrates.map((e) => e.crateId).toList(),
-      "customer": selectedCustomer!.id,
-      "delivery_address": selectedAddress!.id,
-      "draft": false
-    });
-    if (response.statusCode == 400) {
-      if (jsonDecode(response.body)['delivery_address'] != null) {
-        await showError(
-            jsonDecode(response.body)['delivery_address'][0], context);
+    if (_everythingFilledIn) {
+      var response = await HttpService().create('app/delivery_batches/', {
+        "crates": selectedCrates.map((e) => e.crateId).toList(),
+        "customer": selectedCustomer!.id,
+        "delivery_address": selectedAddress!.id,
+        "draft": false
+      });
+      if (response.statusCode == 400) {
+        if (jsonDecode(response.body)['delivery_address'] != null) {
+          await showError(
+              jsonDecode(response.body)['delivery_address'][0], context);
+        }
       }
+      Navigator.pop(context);
+    } else {
+      setState(() {
+        addClicked = true;
+      });
     }
   }
 

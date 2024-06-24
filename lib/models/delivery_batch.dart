@@ -28,24 +28,18 @@ class DeliveryBatch {
     }
 
     return DeliveryBatch(
-        json['id'],
-        crates,
-        json['vehicle'] == null ? null : Vehicle.fromJson(json['vehicle']),
-        json['customer'] == null ? null : Customer.fromJson(json['customer']),
-        json['delivery_address'] == null
-            ? null
-            : Address.fromJson(json['delivery_address']),
-        draft: json['draft']);
+      json['id'],
+      crates,
+      json['vehicle'] == null ? null : Vehicle.fromJson(json['vehicle']),
+      json['customer'] == null ? null : Customer.fromJson(json['customer']),
+      json['delivery_address'] == null
+          ? null
+          : Address.fromJson(json['delivery_address']),
+    );
   }
 }
 
-class DeliveryBatchDraft {
-  List<int> crateIds;
-  int? customerId;
-  int? addressId;
 
-  DeliveryBatchDraft(this.crateIds, this.customerId, this.addressId);
-}
 
 
 // Customer parseCustomer(Map<String, dynamic> customerJson) {

@@ -1,5 +1,6 @@
 // main.dart
 import 'package:delivery_tracking_app/colour_constants.dart';
+import 'package:delivery_tracking_app/models/delivery_batch_draft.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -8,6 +9,7 @@ import 'login_page.dart'; // Make sure to import login_page.dart here
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter(); // Initialize Hive
+  Hive.registerAdapter(DeliveryBatchDraftAdapter());
   runApp(const MyApp());
 }
 
