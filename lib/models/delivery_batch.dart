@@ -1,10 +1,11 @@
+import 'package:delivery_tracking_app/interfaces/delivery_batch_interface.dart';
 import 'package:delivery_tracking_app/models/vehicle.dart';
 
 import 'address.dart';
 import 'crate.dart';
 import 'customer.dart';
 
-class DeliveryBatch {
+class DeliveryBatch implements IDeliveryBatch {
   int id;
   List<Crate> crates = [];
   Vehicle? vehicle;
