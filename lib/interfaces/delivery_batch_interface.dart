@@ -6,5 +6,4 @@ abstract class IDeliveryBatch {
   List<Crate> get crates;
   Customer? get customer;
   Address? get address;
-  bool get draft;
 }

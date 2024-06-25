@@ -137,11 +137,8 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
                   foregroundColor: Colors.white,
                   child: Text(deliveryBatch.id.toString().toUpperCase()),
                 ),
-                title: Text(
-                    "${deliveryBatch.draft ? "{DRAFT}" : ""}To: ${deliveryBatch.draft ? "NONE" : deliveryBatch.customer!.name}"),
-                subtitle: Text(deliveryBatch.draft
-                    ? "NONE"
-                    : deliveryBatch.address!.value),
+                title: Text("To: ${deliveryBatch.customer!.name}"),
+                subtitle: Text(deliveryBatch.address!.value),
                 trailing: const Icon(Icons.chevron_right_sharp),
               ),
             ),

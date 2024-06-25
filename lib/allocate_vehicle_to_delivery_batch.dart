@@ -37,9 +37,6 @@ class _AllocateVehicleToDeliveryBatchState
     setState(() {
       for (var deliveryBatch in decodedBody) {
         var parsedDeliveryBatch = DeliveryBatch.fromJson(deliveryBatch);
-        if (!parsedDeliveryBatch.draft) {
-          deliveryBatches.add(DeliveryBatch.fromJson(deliveryBatch));
-        }
       }
     });
     // });
@@ -52,12 +49,12 @@ class _AllocateVehicleToDeliveryBatchState
     }
 
     return DeliveryBatch(
-        deliveryBatch['id'],
-        crates,
-        parseVehicle(deliveryBatch['vehicle']),
-        parseCustomer(deliveryBatch['customer']),
-        parseAddress(deliveryBatch['delivery_address']),
-        draft: deliveryBatch['draft']);
+      deliveryBatch['id'],
+      crates,
+      parseVehicle(deliveryBatch['vehicle']),
+      parseCustomer(deliveryBatch['customer']),
+      parseAddress(deliveryBatch['delivery_address']),
+    );
   }
 
   Customer parseCustomer(Map<String, dynamic> customerJson) {

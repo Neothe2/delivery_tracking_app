@@ -9,17 +9,23 @@ class DeliveryBatch implements IDeliveryBatch {
   int id;
   List<Crate> crates = [];
   Vehicle? vehicle;
-  Customer? customer;
-  Address? address;
-  bool draft = false;
+  Customer customer;
+  Address address;
+  // bool draft = false;
 
-  DeliveryBatch(this.id, this.crates, this.vehicle, this.customer, this.address,
-      {this.draft = false}) {
-    if (draft == false) {
-      if (customer == null || address == null) {
-        throw Exception("Missing vehicle, customer, or address");
-      }
-    }
+  DeliveryBatch(
+    this.id,
+    this.crates,
+    this.vehicle,
+    this.customer,
+    this.address,
+    // {this.draft = false}
+  ) {
+    // if (draft == false) {
+    //   if (customer == null || address == null) {
+    //     throw Exception("Missing vehicle, customer, or address");
+    //   }
+    // }
   }
 
   factory DeliveryBatch.fromJson(Map<String, dynamic> json) {
@@ -31,11 +37,9 @@ class DeliveryBatch implements IDeliveryBatch {
     return DeliveryBatch(
       json['id'],
       crates,
-      json['vehicle'] == null ? null : Vehicle.fromJson(json['vehicle']),
-      json['customer'] == null ? null : Customer.fromJson(json['customer']),
-      json['delivery_address'] == null
-          ? null
-          : Address.fromJson(json['delivery_address']),
+      Vehicle.fromJson(json['vehicle']),
+      Customer.fromJson(json['customer']),
+      Address.fromJson(json['delivery_address']),
     );
   }
 }

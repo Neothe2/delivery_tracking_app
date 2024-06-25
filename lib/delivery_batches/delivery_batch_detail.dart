@@ -110,9 +110,7 @@ class _DeliveryBatchDetailState extends State<DeliveryBatchDetail> {
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 8.0),
                                 child: Text(
-                                  widget.deliveryBatch.draft
-                                      ? 'NONE'
-                                      : '${widget.deliveryBatch.customer!.name}: ${widget.deliveryBatch.customer!.contactDetails}',
+                                  '${widget.deliveryBatch.customer.name}: ${widget.deliveryBatch.customer.contactDetails}',
                                   textAlign: TextAlign.center,
                                 ),
                               ),
@@ -184,9 +182,7 @@ class _DeliveryBatchDetailState extends State<DeliveryBatchDetail> {
                             Container(
                               padding: EdgeInsets.symmetric(horizontal: 10),
                               constraints: BoxConstraints(minWidth: 999),
-                              child: Text(widget.deliveryBatch.draft
-                                  ? 'NONE'
-                                  : widget.deliveryBatch.address!.value),
+                              child: Text(widget.deliveryBatch.address.value),
                             ),
                           ],
                         ),

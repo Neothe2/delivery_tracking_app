@@ -48,11 +48,9 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
   }
 
   void initializeSelectedAddress() {
-    if (!widget.deliveryBatch.draft) {
-      for (var address in selectedCustomer!.addresses) {
-        if (address.id == widget.deliveryBatch.address!.id) {
-          selectedAddress = address;
-        }
+    for (var address in selectedCustomer!.addresses) {
+      if (address.id == widget.deliveryBatch.address.id) {
+        selectedAddress = address;
       }
     }
   }
@@ -94,14 +92,15 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
   void InitializeSelectedCustomerId() {
     selectedCustomerId = selectedCustomer != null
         ? selectedCustomer!.id
-        : widget.deliveryBatch.draft
-            ? -1
-            : widget.deliveryBatch.customer!.id;
+        : widget.deliveryBatch.customer != null
+            ? widget.deliveryBatch.customer.id
+            : -1;
   }
 
   void initializeAddressFieldControllerText() {
-    addressFieldController.text =
-        widget.deliveryBatch.draft ? "" : widget.deliveryBatch.address!.value;
+    addressFieldController.text = widget.deliveryBatch.address == null
+        ? ""
+        : widget.deliveryBatch.address.value;
   }
 
   void InitializeCustomerList(Response customerResponse) {
@@ -198,7 +197,7 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
     if (widget.deliveryBatch.customer != null) {
       Customer? preselectedCustomer;
       for (var customer in customerList) {
-        if (customer.id == widget.deliveryBatch.customer!.id) {
+        if (customer.id == widget.deliveryBatch.customer.id) {
           preselectedCustomer = customer;
         }
       }
