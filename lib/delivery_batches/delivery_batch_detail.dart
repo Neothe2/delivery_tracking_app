@@ -8,6 +8,7 @@ import '../models/delivery_batch.dart';
 
 class DeliveryBatchDetail extends StatefulWidget {
   DeliveryBatch deliveryBatch;
+  final bool _a = false;
 
   DeliveryBatchDetail({super.key, required this.deliveryBatch});
 
@@ -17,6 +18,8 @@ class DeliveryBatchDetail extends StatefulWidget {
 
 class _DeliveryBatchDetailState extends State<DeliveryBatchDetail> {
   bool cratesLoaded = true;
+
+  a() {}
 
   @override
   Widget build(BuildContext context) {

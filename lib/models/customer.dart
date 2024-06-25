@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import 'address.dart';
 
+part 'customer.g.dart';
+
+@HiveType(typeId: 3)
 class Customer {
+  @HiveField(0)
   int id;
+  @HiveField(1)
   String name;
+  @HiveField(2)
   String contactDetails;
+  @HiveField(3)
   List<Address> addresses;
 
   Customer(this.id, this.name, this.contactDetails, this.addresses);

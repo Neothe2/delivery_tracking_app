@@ -107,9 +107,9 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
     if (anyOneThingFilledIn) {
       var selectedCrateIds = selectedCrates.map((e) => e.crateId).toList();
       var deliveryBatchDraft = DeliveryBatchDraft(
-        selectedCrateIds,
-        selectedCustomer?.id,
-        selectedAddress?.id,
+        selectedCrates,
+        selectedCustomer,
+        selectedAddress,
       );
 
       deliveryBatchDraftRepository.saveDraft(deliveryBatchDraft);
@@ -195,13 +195,17 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
   }
 
   Future<void> executeTempCode() async {
-    // await deliveryBatchDraftRepository.clearAll();
     List<DeliveryBatchDraft> allDrafts =
         await deliveryBatchDraftRepository.getAllDrafts();
     print(allDrafts.length);
+    var printString = '[';
     for (var draft in allDrafts) {
-      print(draft.crateIds);
+      for (var crate in draft.crates) {
+        printString += crate.toString() + ', ';
+      }
     }
+    printString += ']';
+    print(printString);
   }
 
   @override

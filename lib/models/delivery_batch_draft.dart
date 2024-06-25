@@ -1,14 +1,17 @@
+import 'package:delivery_tracking_app/models/crate.dart';
+import 'package:delivery_tracking_app/models/customer.dart';
+import 'package:delivery_tracking_app/models/address.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 part 'delivery_batch_draft.g.dart';
 
 @HiveType(typeId: 1)
 class DeliveryBatchDraft {
   @HiveField(0)
-  List<String> crateIds;
+  List<Crate> crates;
   @HiveField(1)
-  int? customerId;
+  Customer? customer;
   @HiveField(2)
-  int? addressId;
+  Address? address;
 
-  DeliveryBatchDraft(this.crateIds, this.customerId, this.addressId);
+  DeliveryBatchDraft(this.crates, this.customer, this.address);
 }

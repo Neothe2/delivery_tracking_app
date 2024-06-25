@@ -1,5 +1,8 @@
 // main.dart
 import 'package:delivery_tracking_app/colour_constants.dart';
+import 'package:delivery_tracking_app/models/address.dart';
+import 'package:delivery_tracking_app/models/crate.dart';
+import 'package:delivery_tracking_app/models/customer.dart';
 import 'package:delivery_tracking_app/models/delivery_batch_draft.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -10,6 +13,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter(); // Initialize Hive
   Hive.registerAdapter(DeliveryBatchDraftAdapter());
+  Hive.registerAdapter(CrateAdapter());
+  Hive.registerAdapter(CustomerAdapter());
+  Hive.registerAdapter(AddressAdapter());
   runApp(const MyApp());
 }
 

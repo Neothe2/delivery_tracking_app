@@ -1,38 +1,32 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'delivery_batch_draft.dart';
+part of 'crate.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class DeliveryBatchDraftAdapter extends TypeAdapter<DeliveryBatchDraft> {
+class CrateAdapter extends TypeAdapter<Crate> {
   @override
-  final int typeId = 1;
+  final int typeId = 2;
 
   @override
-  DeliveryBatchDraft read(BinaryReader reader) {
+  Crate read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return DeliveryBatchDraft(
-      (fields[0] as List).cast<Crate>(),
-      fields[1] as Customer?,
-      fields[2] as Address?,
+    return Crate(
+      fields[0] as String,
     );
   }
 
   @override
-  void write(BinaryWriter writer, DeliveryBatchDraft obj) {
+  void write(BinaryWriter writer, Crate obj) {
     writer
-      ..writeByte(3)
-      ..writeByte(0)
-      ..write(obj.crates)
       ..writeByte(1)
-      ..write(obj.customer)
-      ..writeByte(2)
-      ..write(obj.address);
+      ..writeByte(0)
+      ..write(obj.crateId);
   }
 
   @override
@@ -41,7 +35,7 @@ class DeliveryBatchDraftAdapter extends TypeAdapter<DeliveryBatchDraft> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is DeliveryBatchDraftAdapter &&
+      other is CrateAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
