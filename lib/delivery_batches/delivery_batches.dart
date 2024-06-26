@@ -1,5 +1,8 @@
 import 'dart:convert';
 
+import 'package:delivery_tracking_app/colour_constants.dart';
+import 'package:delivery_tracking_app/custom_app_bar.dart';
+import 'package:delivery_tracking_app/delivery_batch_list_item.dart';
 import 'package:delivery_tracking_app/delivery_batches/add_delivery_batch.dart';
 import 'package:delivery_tracking_app/delivery_batches/delivery_batch_detail.dart';
 import 'package:delivery_tracking_app/http_service.dart';
@@ -31,6 +34,11 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
     _getDeliveryBatchDrafts();
   }
 
+  _fetchAllData() async {
+    await getDeliveryBatches();
+    await _getDeliveryBatchDrafts();
+  }
+
   getDeliveryBatches() async {
     deliveryBatches = [];
     var response = await HttpService().get('app/delivery_batches/');
@@ -52,12 +60,20 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Delivery Batches'),
+      appBar: CustomAppBar(
+        title: 'Delivery Batches',
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              // Add your onPressed code here!
+            },
+          ),
+        ],
       ),
       body: RefreshIndicator(
           onRefresh: () async {
-            await getDeliveryBatches();
+            await _fetchAllData();
           },
           child: (deliveryBatches.isEmpty)
               ? Padding(
@@ -94,8 +110,7 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
           );
 
           if (response == true) {
-            this.deliveryBatches = [];
-            getDeliveryBatches();
+            await _fetchAllData();
           }
         },
         child: const Icon(Icons.add),
@@ -109,7 +124,8 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
   List<Widget> _buildDeliveryBatchList() {
     return [
       for (var deliveryBatch in deliveryBatches)
-        GestureDetector(
+        DeliveryBatchListItem(
+          deliveryBatch: deliveryBatch,
           onTap: () async {
             var response = await Navigator.of(context).push(
               MaterialPageRoute(
@@ -119,31 +135,8 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
                 ),
               ),
             );
-            if (response == true) {
-              deliveryBatches = [];
-              getDeliveryBatches();
-            }
+            await getDeliveryBatches();
           },
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              decoration: BoxDecoration(
-                border: const Border.fromBorderSide(
-                  BorderSide(color: Colors.grey),
-                ),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: ListTile(
-                leading: CircleAvatar(
-                  foregroundColor: Colors.white,
-                  child: Text(deliveryBatch.id.toString().toUpperCase()),
-                ),
-                title: Text("To: ${deliveryBatch.customer!.name}"),
-                subtitle: Text(deliveryBatch.address!.value),
-                trailing: const Icon(Icons.chevron_right_sharp),
-              ),
-            ),
-          ),
         )
     ];
   }
@@ -161,10 +154,7 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
                 ),
               ),
             );
-            if (response == true) {
-              deliveryBatches = [];
-              getDeliveryBatches();
-            }
+            await _getDeliveryBatchDrafts();
           },
           child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -188,12 +178,22 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
 
     return ListTile(
       leading: CircleAvatar(
+        backgroundColor: Colors.teal,
         foregroundColor: Colors.white,
-        child: Text("D"),
+        child: Text(
+          "D",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
-      title: Text("{DRAFT} To: ${customerName}"),
-      subtitle: Text(address),
-      trailing: const Icon(Icons.chevron_right_sharp),
+      title: Text(
+        "{DRAFT} To: ${customerName}",
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+      ),
+      subtitle: Text(
+        address,
+        style: TextStyle(color: Colors.grey[600]),
+      ),
+      trailing: const Icon(Icons.chevron_right_sharp, color: Colors.teal),
     );
   }
 }

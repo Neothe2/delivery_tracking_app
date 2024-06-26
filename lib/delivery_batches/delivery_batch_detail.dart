@@ -253,13 +253,13 @@ class _DeliveryBatchDetailState extends State<DeliveryBatchDetail> {
               MaterialPageRoute(
                 builder: (cxt) => EditDeliveryBatch(
                   deliveryBatch: widget.deliveryBatch,
-                  isDraft: true,
+                  isDraft: widget.isDraft,
                 ),
               ),
             );
 
             setState(() {
-              if (response is DeliveryBatch) {
+              if (response is IDeliveryBatch) {
                 widget.deliveryBatch = response;
               }
 

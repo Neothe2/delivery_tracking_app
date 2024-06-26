@@ -29,33 +29,6 @@ class ConditionalThreeButtonBottomBar extends StatelessWidget {
               const BottomNavigationBarItem(
                   icon: Icon(Icons.close), label: 'Cancel'),
               BottomNavigationBarItem(
-                icon: const Icon(Icons.check),
-                label: primaryButtonLabel,
-              ),
-            ],
-            currentIndex: 1,
-            selectedItemColor: Colors.green,
-            unselectedItemColor: Colors.grey,
-            onTap: (index) async {
-              switch (index) {
-                case 0:
-                  var confirmation = await cancelConfirmationModal(
-                      context: context,
-                      header: "Are You Sure?",
-                      message: "Are you sure you want to cancel?");
-                  if (confirmation) {
-                    Navigator.pop(context);
-                  }
-                case 1:
-                  onPrimaryButtonPressed();
-              }
-            },
-          )
-        : BottomNavigationBar(
-            items: [
-              const BottomNavigationBarItem(
-                  icon: Icon(Icons.close), label: 'Cancel'),
-              BottomNavigationBarItem(
                   icon: Icon(secondaryButtonIcon), label: secondaryButtonLabel),
               BottomNavigationBarItem(
                 icon: const Icon(Icons.check),
@@ -78,6 +51,33 @@ class ConditionalThreeButtonBottomBar extends StatelessWidget {
                 case 1:
                   onSecondaryButtonPressed();
                 case 2:
+                  onPrimaryButtonPressed();
+              }
+            },
+          )
+        : BottomNavigationBar(
+            items: [
+              const BottomNavigationBarItem(
+                  icon: Icon(Icons.close), label: 'Cancel'),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.check),
+                label: primaryButtonLabel,
+              ),
+            ],
+            currentIndex: 1,
+            selectedItemColor: Colors.green,
+            unselectedItemColor: Colors.grey,
+            onTap: (index) async {
+              switch (index) {
+                case 0:
+                  var confirmation = await cancelConfirmationModal(
+                      context: context,
+                      header: "Are You Sure?",
+                      message: "Are you sure you want to cancel?");
+                  if (confirmation) {
+                    Navigator.pop(context);
+                  }
+                case 1:
                   onPrimaryButtonPressed();
               }
             },

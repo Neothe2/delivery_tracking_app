@@ -10,7 +10,7 @@ abstract interface class IDeliveryBatchDraftRepository {
 
   Future<DeliveryBatchDraft?> getDraftById(int id);
 
-  void deleteDraftById(int id);
+  Future<void> deleteDraftById(int id);
 
   Future<int?> getIdOfDraft(DeliveryBatchDraft draft);
 

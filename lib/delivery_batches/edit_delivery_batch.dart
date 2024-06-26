@@ -307,11 +307,48 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
   }
 
   Future<void> _onSavePressed() async {
-    // await _onSavePressed();
     if (widget.isDraft) {
-      //SaveDraftToNormal
+      await _saveDraftToNormal();
     } else {
       await _saveNormalToNormal();
+    }
+  }
+
+  Future<void> _saveDraftToNormal() async {
+    if (selectedCustomerId != -1 &&
+        selectedCrateIds.isNotEmpty &&
+        selectedAddress != null) {
+      var response = await HttpService().create('app/delivery_batches/', {
+        "crates": selectedCrateIds,
+        "customer": selectedCustomerId,
+        "delivery_address": selectedAddress!.id,
+        "draft": false
+      });
+
+      if (response.statusCode == 400) {
+        if (jsonDecode(response.body)['delivery_address'] != null) {
+          await showError(
+              jsonDecode(response.body)['delivery_address'][0], context);
+        }
+      } else {
+        // Successfully saved as normal delivery batch
+        var newDeliveryBatch =
+            DeliveryBatch.fromJson(jsonDecode(response.body));
+
+        // Delete the draft from the local database
+        if (widget.deliveryBatch is DeliveryBatchDraft) {
+          var draftId = await draftRepository
+              .getIdOfDraft(widget.deliveryBatch as DeliveryBatchDraft);
+          if (draftId != null) {
+            await draftRepository.deleteDraftById(draftId);
+          }
+        }
+
+        Navigator.pop(context, newDeliveryBatch);
+      }
+    } else {
+      // Handle validation errors
+      print("Validation failed: Ensure all fields are filled.");
     }
   }
 
@@ -358,6 +395,7 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
 
       await draftRepository.overwriteDraftAtId(
           newDeliveryBatchId!, newDeliveryBatchDraft);
+      Navigator.pop(context, newDeliveryBatchDraft);
     }
   }
 }
@@ -369,3 +407,4 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
 //
 //   Customer(this.id, this.name, this.contactDetails);
 // }
+
