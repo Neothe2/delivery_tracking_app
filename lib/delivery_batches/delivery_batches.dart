@@ -115,6 +115,7 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
               MaterialPageRoute(
                 builder: (cxt) => DeliveryBatchDetail(
                   deliveryBatch: deliveryBatch,
+                  isDraft: false,
                 ),
               ),
             );
@@ -152,7 +153,18 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
       for (var draft in deliveryBatchDrafts)
         GestureDetector(
           onTap: () async {
-            print("Navigating to draft detail page...");
+            var response = await Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (cxt) => DeliveryBatchDetail(
+                  deliveryBatch: draft,
+                  isDraft: true,
+                ),
+              ),
+            );
+            if (response == true) {
+              deliveryBatches = [];
+              getDeliveryBatches();
+            }
           },
           child: Padding(
             padding: const EdgeInsets.all(8.0),

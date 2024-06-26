@@ -37,7 +37,7 @@ class DeliveryBatch implements IDeliveryBatch {
     return DeliveryBatch(
       json['id'],
       crates,
-      Vehicle.fromJson(json['vehicle']),
+      json['vehicle'] != null ? Vehicle.fromJson(json['vehicle']) : null,
       Customer.fromJson(json['customer']),
       Address.fromJson(json['delivery_address']),
     );

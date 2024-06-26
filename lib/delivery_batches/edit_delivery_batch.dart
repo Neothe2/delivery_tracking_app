@@ -1,8 +1,15 @@
 import 'dart:convert';
 
+import 'package:delivery_tracking_app/3_button_bottom_bar.dart';
+import 'package:delivery_tracking_app/conditional_3_button_bottom_bar.dart';
+import 'package:delivery_tracking_app/delivery_batches/select_crates_button.dart';
 import 'package:delivery_tracking_app/delivery_batches/select_crates_page.dart';
 import 'package:delivery_tracking_app/delivery_batches/select_customer_page.dart';
 import 'package:delivery_tracking_app/http_service.dart';
+import 'package:delivery_tracking_app/interfaces/delivery_batch_interface.dart';
+import 'package:delivery_tracking_app/models/delivery_batch_draft.dart';
+import 'package:delivery_tracking_app/repositories/delivery_batch_draft_repository.dart';
+import 'package:delivery_tracking_app/repositories/hive_delivery_batch_draft_repository.dart';
 import 'package:flutter/material.dart';
 
 import '../custom_bottom_bar.dart';
@@ -14,9 +21,11 @@ import '../models/delivery_batch.dart';
 import 'package:http/src/response.dart';
 
 class EditDeliveryBatch extends StatefulWidget {
-  final DeliveryBatch deliveryBatch;
+  final IDeliveryBatch deliveryBatch;
+  final bool isDraft;
 
-  const EditDeliveryBatch({super.key, required this.deliveryBatch});
+  const EditDeliveryBatch(
+      {super.key, required this.deliveryBatch, required this.isDraft});
 
   @override
   State<EditDeliveryBatch> createState() => _EditDeliveryBatchState();
@@ -34,23 +43,36 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
   Address? selectedAddress;
   List<DropdownMenuItem<Address>> addressDropdownItems = [];
   bool customersLoaded = false;
+  IDeliveryBatchDraftRepository draftRepository =
+      HiveDeliveryBatchDraftRepository();
 
   bool addClicked = false;
 
   @override
   void initState() {
     super.initState();
-    selectedCustomer = widget.deliveryBatch.customer;
-    selectedCrates = widget.deliveryBatch.crates;
+    initializeSelectedCustomer();
+    initializeSelectedCrates();
     initializeSelectedAddress();
 
     getCrates();
   }
 
+  void initializeSelectedCustomer() {
+    selectedCustomer = widget.deliveryBatch.customer;
+  }
+
+  void initializeSelectedCrates() {
+    selectedCrates = widget.deliveryBatch.crates;
+  }
+
   void initializeSelectedAddress() {
-    for (var address in selectedCustomer!.addresses) {
-      if (address.id == widget.deliveryBatch.address.id) {
-        selectedAddress = address;
+    if (widget.deliveryBatch.customer != null &&
+        widget.deliveryBatch.address != null) {
+      for (var address in selectedCustomer!.addresses) {
+        if (address.id == widget.deliveryBatch.address!.id) {
+          selectedAddress = address;
+        }
       }
     }
   }
@@ -77,6 +99,7 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
   }
 
   void initializeAddressDropdownItems() {
+    //TODO: Might cause an error, don't know why though. Gut feeling
     if (selectedCustomer != null) {
       addressDropdownItems = customerList
           .firstWhere((customer) => customer.id == selectedCustomerId)
@@ -93,14 +116,14 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
     selectedCustomerId = selectedCustomer != null
         ? selectedCustomer!.id
         : widget.deliveryBatch.customer != null
-            ? widget.deliveryBatch.customer.id
+            ? widget.deliveryBatch.customer!.id
             : -1;
   }
 
   void initializeAddressFieldControllerText() {
     addressFieldController.text = widget.deliveryBatch.address == null
         ? ""
-        : widget.deliveryBatch.address.value;
+        : widget.deliveryBatch.address!.value;
   }
 
   void InitializeCustomerList(Response customerResponse) {
@@ -137,19 +160,6 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
         selectedCrates.isNotEmpty ||
         selectedAddress != null) {
       print("Saved as draft.");
-      var response = await HttpService()
-          .update('app/delivery_batches/${widget.deliveryBatch.id}/', {
-        "crates": selectedCrateIds,
-        "customer": selectedCustomer != null ? selectedCustomerId : "",
-        "delivery_address": selectedAddress != null ? selectedAddress!.id : "",
-        "draft": true
-      });
-      if (response.statusCode == 400) {
-        if (jsonDecode(response.body)['delivery_address'] != null) {
-          await showError(
-              jsonDecode(response.body)['delivery_address'][0], context);
-        }
-      }
     } else {
       print("Not saved as draft because no data.");
     }
@@ -162,8 +172,9 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
 
     createSelectableCustomerListViewList();
 
-    getPreselectedCrates();
-    getPreselectedCustomer();
+    //TODO: Don't know if this will cause an error but I am scared.
+    // getPreselectedCrates();
+    // getPreselectedCustomer();
 
     return PopScope(
       onPopInvoked: (bool didPop) async {
@@ -193,27 +204,27 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
     );
   }
 
-  void getPreselectedCustomer() {
-    if (widget.deliveryBatch.customer != null) {
-      Customer? preselectedCustomer;
-      for (var customer in customerList) {
-        if (customer.id == widget.deliveryBatch.customer.id) {
-          preselectedCustomer = customer;
-        }
-      }
-    }
-  }
+  // void getPreselectedCustomer() {
+  //   if (widget.deliveryBatch.customer != null) {
+  //     Customer? preselectedCustomer;
+  //     for (var customer in customerList) {
+  //       if (customer.id == widget.deliveryBatch.customer.id) {
+  //         preselectedCustomer = customer;
+  //       }
+  //     }
+  //   }
+  // }
 
-  void getPreselectedCrates() {
-    List<Crate> preselectedCrates = [];
-    for (var selectedCrate in widget.deliveryBatch.crates) {
-      for (var crate in crateList) {
-        if (crate.crateId == selectedCrate.crateId) {
-          preselectedCrates.add(crate);
-        }
-      }
-    }
-  }
+  // void getPreselectedCrates() {
+  //   List<Crate> preselectedCrates = [];
+  //   for (var selectedCrate in widget.deliveryBatch.crates) {
+  //     for (var crate in crateList) {
+  //       if (crate.crateId == selectedCrate.crateId) {
+  //         preselectedCrates.add(crate);
+  //       }
+  //     }
+  //   }
+  // }
 
   void createSelectableCustomerListViewList() {
     List<MapEntry<String, dynamic>> selectableCustomerListViewList =
@@ -234,37 +245,16 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
 
   _buildSelectCrateButton() {
     return [
-      Padding(
-        padding: const EdgeInsets.only(top: 8.0),
-        child: Visibility(
-          visible: (selectedCrates.isEmpty && addClicked),
-          child: const Text("Please select at least one crate.",
-              style: TextStyle(color: Colors.red)),
-        ),
-      ),
-      SizedBox(
-        width: 300,
-        child: OutlinedButton(
-          onPressed: () async {
-            List<Crate>? response = await Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (cxt) => SelectCratesPage(
-                  crateList: crateList,
-                  //TODO: Might become a bug
-                  initialCrates: selectedCrates,
-                ),
-              ),
-            );
-
-            if (response != null) {
-              setState(() {
-                selectedCrates = response;
-              });
-              selectedCrateIds = response.map((e) => e.crateId).toList();
-            }
-          },
-          child: const Text('Select Crates'),
-        ),
+      SelectCratesButton(
+        crateList: crateList,
+        selectedCrates: selectedCrates,
+        addClicked: addClicked,
+        onCratesSelected: (List<Crate> response) {
+          setState(() {
+            selectedCrates = response;
+          });
+          selectedCrateIds = response.map((e) => e.crateId).toList();
+        },
       ),
     ];
   }
@@ -302,34 +292,73 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
   }
 
   _buildBottomBar() {
-    return BottomBar(
-      primaryButtonLabel: 'Ok',
+    return ConditionalThreeButtonBottomBar(
+      primaryButtonLabel: 'Save',
       onPrimaryButtonPressed: () async {
-        if (selectedCustomerId != -1 &&
-            selectedCrateIds.isNotEmpty &&
-            selectedAddress != null) {
-          var response = await HttpService()
-              .update('app/delivery_batches/${widget.deliveryBatch.id}/', {
-            "crates": selectedCrateIds,
-            "customer": selectedCustomerId,
-            "delivery_address": selectedAddress!.id,
-            "draft": false
-          });
-
-          if (response.statusCode == 400) {
-            if (jsonDecode(response.body)['delivery_address'] != null) {
-              await showError(
-                  jsonDecode(response.body)['delivery_address'][0], context);
-            }
-          }
-          print(jsonDecode(response.body));
-          widget.deliveryBatch.crates = selectedCrates;
-          widget.deliveryBatch.customer = selectedCustomer;
-          widget.deliveryBatch.address = selectedAddress!;
-          Navigator.pop(context, widget.deliveryBatch);
-        }
+        await _onSavePressed();
       },
+      secondaryButtonIcon: Icons.save_alt,
+      secondaryButtonLabel: 'Save As Draft',
+      onSecondaryButtonPressed: () async {
+        await saveDraftAsDraft();
+      },
+      showSecondaryButton: widget.isDraft,
     );
+  }
+
+  Future<void> _onSavePressed() async {
+    // await _onSavePressed();
+    if (widget.isDraft) {
+      //SaveDraftToNormal
+    } else {
+      await _saveNormalToNormal();
+    }
+  }
+
+  Future<void> _saveNormalToNormal() async {
+    if (!widget.isDraft) {
+      if (selectedCustomerId != -1 &&
+          selectedCrateIds.isNotEmpty &&
+          selectedAddress != null) {
+        var response = await HttpService().update(
+            'app/delivery_batches/${(widget.deliveryBatch as DeliveryBatch).id}/',
+            {
+              "crates": selectedCrateIds,
+              "customer": selectedCustomerId,
+              "delivery_address": selectedAddress!.id,
+              "draft": false
+            });
+
+        if (response.statusCode == 400) {
+          if (jsonDecode(response.body)['delivery_address'] != null) {
+            await showError(
+                jsonDecode(response.body)['delivery_address'][0], context);
+          }
+        }
+        print(jsonDecode(response.body));
+        (widget.deliveryBatch as DeliveryBatch).crates = selectedCrates;
+        (widget.deliveryBatch as DeliveryBatch).customer = selectedCustomer!;
+        (widget.deliveryBatch as DeliveryBatch).address = selectedAddress!;
+        Navigator.pop(context, widget.deliveryBatch);
+      }
+    }
+  }
+
+  Future<void> saveDraftAsDraft() async {
+    if (widget.isDraft) {
+      var newDeliveryBatchDraft = DeliveryBatchDraft(
+        selectedCrates,
+        selectedCustomer,
+        selectedAddress,
+      );
+
+      var newDeliveryBatchId = await draftRepository.getIdOfDraft(
+        (widget.deliveryBatch as DeliveryBatchDraft),
+      );
+
+      await draftRepository.overwriteDraftAtId(
+          newDeliveryBatchId!, newDeliveryBatchDraft);
+    }
   }
 }
 

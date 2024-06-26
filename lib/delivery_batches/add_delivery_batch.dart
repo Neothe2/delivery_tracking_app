@@ -3,7 +3,9 @@ import 'dart:convert';
 
 import 'package:delivery_tracking_app/3_button_bottom_bar.dart';
 import 'package:delivery_tracking_app/custom_bottom_bar.dart';
+import 'package:delivery_tracking_app/delivery_batches/select_crates_button.dart';
 import 'package:delivery_tracking_app/delivery_batches/select_crates_page.dart';
+import 'package:delivery_tracking_app/delivery_batches/select_customer_button.dart';
 import 'package:delivery_tracking_app/delivery_batches/select_customer_page.dart';
 import 'package:delivery_tracking_app/http_service.dart';
 import 'package:delivery_tracking_app/models/delivery_batch.dart';
@@ -236,79 +238,32 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
   }
 
   _buildSelectCratesButton() {
-    return [
-      Padding(
-        padding: const EdgeInsets.only(top: 8.0),
-        child: Visibility(
-          visible: (selectedCrates.isEmpty && addClicked),
-          child: Text("Please select at least one crate",
-              style: TextStyle(color: Colors.red)),
-        ),
-      ),
-      SizedBox(
-        width: 300,
-        child: OutlinedButton(
-            onPressed: () async {
-              List<Crate>? response = await Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (cxt) => SelectCratesPage(
-                    crateList: crateList,
-                    initialCrates: selectedCrates,
-                  ),
-                ),
-              );
-
-              if (response != null) {
-                setState(() {
-                  selectedCrates = response;
-                });
-                selectedCrateIds = response.map((e) => e.crateId).toList();
-              }
-            },
-            child: const Text('Select Crates')),
-      )
-    ];
+    return SelectCratesButton(
+      crateList: crateList,
+      selectedCrates: selectedCrates,
+      addClicked: addClicked,
+      onCratesSelected: (List<Crate> response) {
+        setState(() {
+          selectedCrates = response;
+        });
+        selectedCrateIds = response.map((e) => e.crateId).toList();
+      },
+    );
   }
 
   _buildSelectCustomerButton() {
-    return [
-      Padding(
-        padding: const EdgeInsets.only(top: 8.0),
-        child: Visibility(
-          visible: (selectedCustomer == null && addClicked),
-          child: const Text("Please select a customer",
-              style: TextStyle(color: Colors.red)),
-        ),
-      ),
-      SizedBox(
-        width: 300,
-        child: OutlinedButton(
-          onPressed: () async {
-            print('Navigating to Select Customer page');
-            List<dynamic>? response = await Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (cxt) => SelectCustomerPage(
-                  customerList: customerList,
-                  initialCustomer: selectedCustomer,
-                  selectedAddress: selectedAddress,
-                ),
-              ),
-            );
-
-            if (response != null) {
-              if (response[0] is Customer) {
-                setState(() {
-                  selectedCustomer = response[0];
-                });
-                selectedCustomerId = response[0].id;
-                selectedAddress = response[1];
-              }
-            }
-          },
-          child: const Text('Select Customer'),
-        ),
-      ),
-    ];
+    return SelectCustomerButton(
+      customerList: customerList,
+      selectedCustomer: selectedCustomer,
+      selectedAddress: selectedAddress,
+      addClicked: addClicked,
+      onCustomerSelected: (Customer customer, Address address) {
+        setState(() {
+          selectedCustomer = customer;
+          selectedAddress = address;
+        });
+      },
+    );
   }
 
   _buildBottomNavigationBar() {
