@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:delivery_tracking_app/colour_constants.dart';
+import 'package:delivery_tracking_app/custom_app_bar.dart';
 import 'package:delivery_tracking_app/custom_bottom_bar.dart';
 import 'package:flutter/material.dart';
 
@@ -44,12 +45,10 @@ class _SelectCratesPageState extends State<SelectCratesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Title(
-          color: ColorPalette.greenVibrant,
-          child: const Text('Select Crates'),
-        ),
+      appBar: CustomAppBar(
+        title: 'Select Crates',
       ),
+
       resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,

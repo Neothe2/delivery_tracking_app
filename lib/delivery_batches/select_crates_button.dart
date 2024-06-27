@@ -18,19 +18,36 @@ class SelectCratesButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Visibility(
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Visibility(
             visible: (selectedCrates.isEmpty && addClicked),
-            child: const Text("Please select at least one crate",
-                style: TextStyle(color: Colors.red)),
+            child: Container(
+              padding: const EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: Colors.red.shade100,
+                borderRadius: BorderRadius.circular(8.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: const Text(
+                "Please select at least one crate",
+                style: TextStyle(color: Colors.red),
+                textAlign: TextAlign.center,
+              ),
+            ),
           ),
-        ),
-        SizedBox(
-          width: 300,
-          child: OutlinedButton(
+          const SizedBox(height: 16.0),
+          OutlinedButton(
             onPressed: () async {
               List<Crate>? response = await Navigator.of(context).push(
                 MaterialPageRoute(
@@ -45,10 +62,22 @@ class SelectCratesButton extends StatelessWidget {
                 onCratesSelected(response);
               }
             },
-            child: const Text('Select Crates'),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              side: const BorderSide(color: Colors.white),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              shadowColor: Colors.black.withOpacity(0.1),
+              elevation: 5,
+            ),
+            child: const Text(
+              'Select Crates',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

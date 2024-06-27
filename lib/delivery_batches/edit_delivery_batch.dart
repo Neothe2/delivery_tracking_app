@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:delivery_tracking_app/3_button_bottom_bar.dart';
 import 'package:delivery_tracking_app/conditional_3_button_bottom_bar.dart';
+import 'package:delivery_tracking_app/custom_app_bar.dart';
 import 'package:delivery_tracking_app/delivery_batches/select_crates_button.dart';
 import 'package:delivery_tracking_app/delivery_batches/select_crates_page.dart';
 import 'package:delivery_tracking_app/delivery_batches/select_customer_page.dart';
@@ -183,8 +184,8 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Edit Delivery Batch'),
+        appBar: CustomAppBar(
+          title: 'Edit Delivery Batch',
         ),
         resizeToAvoidBottomInset: true,
         body: cratesLoaded
@@ -326,9 +327,20 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
       });
 
       if (response.statusCode == 400) {
+        print(response.body);
         if (jsonDecode(response.body)['delivery_address'] != null) {
           await showError(
               jsonDecode(response.body)['delivery_address'][0], context);
+        }
+        if (jsonDecode(response.body)['error'] != null) {
+          if (jsonDecode(response.body)['error']['crates'] != null) {
+            var crates =
+                (jsonDecode(response.body)['error']['crates'] as List<dynamic>)
+                    .map((element) => 'Crate $element');
+            await showError(
+                'Another delivery batch already contains these crates:  ${crates}',
+                context);
+          }
         }
       } else {
         // Successfully saved as normal delivery batch

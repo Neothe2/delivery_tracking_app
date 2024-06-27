@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:delivery_tracking_app/custom_app_bar.dart';
 import 'package:delivery_tracking_app/error_modal.dart';
 import 'package:delivery_tracking_app/http_service.dart';
 import 'package:delivery_tracking_app/select_vehicle.dart';
@@ -65,8 +66,8 @@ class _AssignDriverToVehiclePageState extends State<AssignDriverToVehiclePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Choose driver to assign vehicle to'),
+      appBar: CustomAppBar(
+        title: 'Choose driver to assign vehicle to',
       ),
       body: RefreshIndicator(
         onRefresh: () async {

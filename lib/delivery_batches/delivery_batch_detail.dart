@@ -1,4 +1,7 @@
+import 'package:delivery_tracking_app/custom_app_bar.dart';
 import 'package:delivery_tracking_app/delivery_batches/edit_delivery_batch.dart';
+import 'package:delivery_tracking_app/models/delivery_batch_draft.dart';
+import 'package:delivery_tracking_app/repositories/hive_delivery_batch_draft_repository.dart';
 import 'package:delivery_tracking_app/searchable_list.dart';
 import 'package:flutter/material.dart';
 
@@ -42,8 +45,8 @@ class _DeliveryBatchDetailState extends State<DeliveryBatchDetail> {
     // ];
 
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Delivery Batch Detail'),
+        appBar: CustomAppBar(
+          title: 'Delivery Batch Detail',
         ),
         resizeToAvoidBottomInset: true,
         body: SingleChildScrollView(
@@ -264,11 +267,20 @@ class _DeliveryBatchDetailState extends State<DeliveryBatchDetail> {
               }
 
               cratesLoaded = true;
+              Navigator.pop(context, true);
             });
 
           case 0:
-            //   await HttpService()
-            //       .delete('app/delivery_batches/${widget.deliveryBatch.id}/');
+            if (!widget.isDraft) {
+              await HttpService().delete(
+                  'app/delivery_batches/${(widget.deliveryBatch as DeliveryBatch).id}/');
+            } else {
+              var draftRepository = HiveDeliveryBatchDraftRepository();
+              var deliveryBatchDraftId = await draftRepository
+                  .getIdOfDraft((widget.deliveryBatch as DeliveryBatchDraft));
+              draftRepository.deleteDraftById(deliveryBatchDraftId!);
+            }
+
             Navigator.pop(context, true);
             print("Navigating to edit page...");
         }

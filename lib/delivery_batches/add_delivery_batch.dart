@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:delivery_tracking_app/3_button_bottom_bar.dart';
+import 'package:delivery_tracking_app/custom_app_bar.dart';
 import 'package:delivery_tracking_app/custom_bottom_bar.dart';
 import 'package:delivery_tracking_app/delivery_batches/select_crates_button.dart';
 import 'package:delivery_tracking_app/delivery_batches/select_crates_page.dart';
@@ -118,7 +119,7 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
 
       print(await deliveryBatchDraftRepository.getAllDrafts());
 
-      Navigator.pop(context);
+      Navigator.pop(context, true);
     } else {
       print("Not saved as draft because no data.");
     }
@@ -190,9 +191,7 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
             await _save();
         }
       },
-      child: BackButton(
-        color: Colors.blueAccent,
-      ),
+      child: BackButton(),
     );
   }
 
@@ -213,27 +212,49 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: CustomAppBar(
         leading: _buildCustomBackButton(),
-        title: const Text('Add Delivery Batch'),
+        title: 'Add Delivery Batch',
       ),
       resizeToAvoidBottomInset: true,
       body: cratesLoaded
           ? SingleChildScrollView(
               child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    ..._buildSelectCratesButton(),
-                    ..._buildSelectCustomerButton(),
-                  ],
-                ),
+                child: _pageWithConstraints([
+                  Spacer(),
+                  _buildSelectCratesButton(),
+                  _buildSelectCustomerButton(),
+                  Spacer(),
+                ]),
               ),
             )
           : const Center(child: CircularProgressIndicator()),
       bottomNavigationBar: _buildBottomNavigationBar(),
+    );
+  }
+
+  _pageWithConstraints(List<Widget> children) {
+    final mediaQuery = MediaQuery.of(context);
+    final appBarHeight = kToolbarHeight;
+    final statusBarHeight = mediaQuery.padding.top;
+    final bottomPadding = mediaQuery.padding.bottom;
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        maxHeight: mediaQuery.size.height -
+            appBarHeight -
+            statusBarHeight -
+            bottomPadding,
+      ),
+      child: Padding(
+        padding:
+            const EdgeInsets.only(bottom: 16.0), // Add desired bottom padding
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: children,
+        ),
+      ),
     );
   }
 
@@ -275,7 +296,7 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
       },
       secondaryButtonLabel: 'Save As Draft',
       onSecondaryButtonPressed: () {
-        print("save as draft button clicked");
+        _saveAsDraft();
       },
       secondaryButtonIcon: Icons.save,
     );
@@ -287,15 +308,16 @@ class _AddDeliveryBatchState extends State<AddDeliveryBatch> {
         "crates": selectedCrates.map((e) => e.crateId).toList(),
         "customer": selectedCustomer!.id,
         "delivery_address": selectedAddress!.id,
-        "draft": false
+        // "draft": false
       });
+      print(response.body);
       if (response.statusCode == 400) {
         if (jsonDecode(response.body)['delivery_address'] != null) {
           await showError(
               jsonDecode(response.body)['delivery_address'][0], context);
         }
       }
-      Navigator.pop(context);
+      Navigator.pop(context, true);
     } else {
       setState(() {
         addClicked = true;

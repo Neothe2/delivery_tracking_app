@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:delivery_tracking_app/custom_app_bar.dart';
 import 'package:delivery_tracking_app/http_service.dart';
 import 'package:delivery_tracking_app/searchable_list.dart';
 import 'package:flutter/material.dart';
@@ -63,8 +64,8 @@ class _SelectVehiclePageState extends State<SelectVehiclePage> {
       print(preselectedvalue);
     }
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Select Vehicle to Allocate'),
+      appBar: CustomAppBar(
+        title: 'Select Vehicle to Allocate',
       ),
       resizeToAvoidBottomInset: true,
       body: vehiclesLoaded

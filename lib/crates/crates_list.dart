@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:delivery_tracking_app/confirmation_modal.dart';
 import 'package:delivery_tracking_app/crates/crates_add.dart';
+import 'package:delivery_tracking_app/custom_app_bar.dart';
 import 'package:delivery_tracking_app/http_service.dart';
 import 'package:flutter/material.dart';
 
@@ -88,8 +89,8 @@ class _CratesListPageState extends State<CratesListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Crates'),
+      appBar: CustomAppBar(
+        title: 'Crates',
         actions: [
           IconButton(
             icon: Icon(Icons.search),
@@ -98,7 +99,7 @@ class _CratesListPageState extends State<CratesListPage> {
             // You can customize the icon and onPressed logic here
           ),
           Container(
-            width: 190,
+            width: 150,
             padding: EdgeInsets.only(right: 30),
             child: TextField(
               onChanged: (value) => _searchItems(value),

@@ -4,9 +4,11 @@ import 'package:delivery_tracking_app/colour_constants.dart';
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final List<Widget>? actions;
+  final Widget? leading;
 
   const CustomAppBar({
     Key? key,
+    this.leading,
     required this.title,
     this.actions,
   }) : super(key: key);
@@ -14,6 +16,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      leading: leading,
       title: Text(
         title,
         style: TextStyle(

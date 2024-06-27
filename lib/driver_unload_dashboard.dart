@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:delivery_tracking_app/custom_app_bar.dart';
 import 'package:delivery_tracking_app/http_service.dart';
 import 'package:delivery_tracking_app/proof_of_delivery/proof_of_delivery.dart';
 import 'package:delivery_tracking_app/scan_crates.dart';
@@ -113,8 +114,8 @@ class _DriverUnloadDashBoardState extends State<DriverUnloadDashBoard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Select batch to unload'),
+      appBar: CustomAppBar(
+        title: 'Select batch to unload',
       ),
       body: RefreshIndicator(
         onRefresh: () async {

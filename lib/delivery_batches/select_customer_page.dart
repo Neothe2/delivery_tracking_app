@@ -1,3 +1,4 @@
+import 'package:delivery_tracking_app/custom_app_bar.dart';
 import 'package:delivery_tracking_app/delivery_batches/choose_address_message_box.dart';
 import 'package:flutter/material.dart';
 
@@ -64,11 +65,8 @@ class _SelectCustomerPageState extends State<SelectCustomerPage> {
             .toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Title(
-          color: ColorPalette.greenVibrant,
-          child: const Text('Select Customer'),
-        ),
+      appBar: CustomAppBar(
+        title: 'Select Customer',
       ),
       resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(

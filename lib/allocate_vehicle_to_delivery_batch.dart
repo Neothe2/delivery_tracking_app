@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:delivery_tracking_app/custom_app_bar.dart';
 import 'package:delivery_tracking_app/error_modal.dart';
 import 'package:delivery_tracking_app/http_service.dart';
 import 'package:delivery_tracking_app/select_vehicle.dart';
@@ -37,6 +38,7 @@ class _AllocateVehicleToDeliveryBatchState
     setState(() {
       for (var deliveryBatch in decodedBody) {
         var parsedDeliveryBatch = DeliveryBatch.fromJson(deliveryBatch);
+        deliveryBatches.add(parsedDeliveryBatch);
       }
     });
     // });
@@ -92,8 +94,8 @@ class _AllocateVehicleToDeliveryBatchState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Delivery Batches'),
+      appBar: CustomAppBar(
+        title: 'Delivery Batches',
       ),
       body: RefreshIndicator(
         onRefresh: () async {

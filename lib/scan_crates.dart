@@ -1,4 +1,5 @@
 import 'package:delivery_tracking_app/colour_constants.dart';
+import 'package:delivery_tracking_app/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:native_barcode_scanner/barcode_scanner.dart';
@@ -123,8 +124,8 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
     print(widget.crateList);
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: AppBar(
-        title: const Text('Crates'),
+      appBar: CustomAppBar(
+        title: 'Crates',
       ),
       resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(

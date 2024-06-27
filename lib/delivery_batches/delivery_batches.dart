@@ -75,7 +75,7 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
           onRefresh: () async {
             await _fetchAllData();
           },
-          child: (deliveryBatches.isEmpty)
+          child: (deliveryBatches.isEmpty && deliveryBatchDrafts.isEmpty)
               ? Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
@@ -135,7 +135,7 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
                 ),
               ),
             );
-            await getDeliveryBatches();
+            await _fetchAllData();
           },
         )
     ];
