@@ -11,12 +11,16 @@ class ScanCratesPage extends StatefulWidget {
   final List<Crate> crateList;
   final String title;
   final Function afterScanningFinished;
+  final Function(List<Crate>)? onCrateScanned;
+  final List<Crate> alreadyScannedCrates;
 
   const ScanCratesPage(
       {super.key,
       required this.crateList,
       required this.title,
-      required this.afterScanningFinished});
+      required this.afterScanningFinished,
+      this.onCrateScanned,
+      this.alreadyScannedCrates = const []});
 
   @override
   State<ScanCratesPage> createState() => _ScanCratesPageState();
@@ -33,16 +37,27 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
   Color backgroundColor = ColorPalette.backgroundWhite;
   static const MethodChannel _channel = MethodChannel('vibration');
 
-  vibrateBad() async {}
+  initializeScannedCrates() {
+    for (var crate in remainingCrates) {
+      if (widget.alreadyScannedCrates.contains(crate.crateId)) {
+        remainingCrates.remove(crate);
+        scannedCrates.add(crate);
+      }
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    vibrateBad();
     progressBarValueForOneUnit = 1 / widget.crateList.length;
     setState(() {
-      remainingCrates = [...widget.crateList];
+      initializeRemainingCrates();
+      initializeScannedCrates();
     });
+  }
+
+  void initializeRemainingCrates() {
+    remainingCrates = [...widget.crateList];
   }
 
   static Future<void> vibrate({
@@ -88,6 +103,9 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
     } else {
       setState(() {
         Vibration.vibrate(duration: 100, amplitude: 10);
+        if (widget.onCrateScanned != null) {
+          widget.onCrateScanned!(scannedCrates);
+        }
         correctionText = 'Correct';
         remainingCrates.remove(scannedCrate!);
         scannedCrates.add(scannedCrate);

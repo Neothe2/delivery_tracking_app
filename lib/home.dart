@@ -11,6 +11,7 @@ import 'package:delivery_tracking_app/driver_unload_dashboard.dart';
 import 'package:delivery_tracking_app/http_service.dart';
 import 'package:delivery_tracking_app/login_page.dart';
 import 'package:delivery_tracking_app/scan_crates.dart';
+import 'package:delivery_tracking_app/scanning_progress_saving/loading_scanning_progress_repository.dart';
 import 'package:flutter/material.dart';
 
 import 'colour_constants.dart';
@@ -43,7 +44,8 @@ class _HomePageState extends State<HomePage> {
   bool driverLoaded = false;
   List<Crate> cratesToBeLoaded = [];
 
-  // bool isVehicleTapped = false;
+  LoadingScanningProgressRepository loadingProgressDB =
+      LoadingScanningProgressRepository();
 
   bool loading = false;
 
@@ -283,7 +285,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  _buildLoadCratesPage() {
+  _buildLoadCratesPage() async {
     return _pageWithConstraints(
       [
         _buildVehicleCard(),
@@ -732,7 +734,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  _buildGoToLoadingPageButton() {
+  _buildGoToLoadingPageButton() async {
+    List<Crate> alreadyScannedCrates = await loadingProgressDB.getCrates();
     return SizedBox(
       width: 300,
       child: ElevatedButton(
@@ -745,6 +748,10 @@ class _HomePageState extends State<HomePage> {
                   afterScanningFinished();
                 },
                 crateList: cratesToBeLoaded,
+                onCrateScanned: (List<Crate> scannedCrates) async {
+                  await loadingProgressDB.saveCrates(scannedCrates);
+                },
+                alreadyScannedCrates: alreadyScannedCrates,
               ),
             ),
           );
