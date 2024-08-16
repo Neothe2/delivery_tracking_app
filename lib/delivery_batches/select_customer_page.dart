@@ -55,6 +55,21 @@ class _SelectCustomerPageState extends State<SelectCustomerPage> {
     }
   }
 
+  _buildCustomBackButton() {
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) {
+          return;
+        }
+        if (selectedCustomer != null && selectedAddress != null) {
+          Navigator.pop(context, [selectedCustomer, selectedAddress]);
+        }
+      },
+      child: BackButton(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     List<DropdownMenuEntry<Customer>> selectableCustomerListViewList =
@@ -66,6 +81,7 @@ class _SelectCustomerPageState extends State<SelectCustomerPage> {
 
     return Scaffold(
       appBar: CustomAppBar(
+        leading: _buildCustomBackButton(),
         title: 'Select Customer',
       ),
       resizeToAvoidBottomInset: true,

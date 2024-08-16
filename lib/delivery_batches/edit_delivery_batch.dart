@@ -167,6 +167,8 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
     }
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     print(crateList);
@@ -181,7 +183,7 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
     return PopScope(
       onPopInvoked: (bool didPop) async {
         if (didPop) {
-          await _saveAsDraft();
+          _onSavePressed();
         }
       },
       child: Scaffold(

@@ -735,12 +735,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  _buildGoToLoadingPageButton() async {
-    List<Crate> alreadyScannedCrates = await loadingProgressDB.getCrates();
+  _buildGoToLoadingPageButton() {
     return SizedBox(
       width: 300,
       child: ElevatedButton(
         onPressed: () async {
+          List<Crate> alreadyScannedCrates =
+              await loadingProgressDB.getCrates();
           var response = await Navigator.of(context).push(
             MaterialPageRoute(
               builder: (cxt) => ScanCratesPage(

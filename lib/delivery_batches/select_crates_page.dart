@@ -42,10 +42,24 @@ class _SelectCratesPageState extends State<SelectCratesPage> {
     }
   }
 
+  _buildCustomBackButton() {
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) {
+          return;
+        }
+        Navigator.pop(context, selectedCrates);
+      },
+      child: BackButton(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
+        leading: _buildCustomBackButton(),
         title: 'Select Crates',
       ),
 
