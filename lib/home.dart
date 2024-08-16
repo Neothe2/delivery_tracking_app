@@ -285,7 +285,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  _buildLoadCratesPage() async {
+  _buildLoadCratesPage() {
     return _pageWithConstraints(
       [
         _buildVehicleCard(),
