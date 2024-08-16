@@ -168,6 +168,7 @@ class _DriverUnloadDashBoardState extends State<DriverUnloadDashBoard> {
                         await unloadingProgressDB.saveCrates(
                             deliveryBatch.id, scannedCrates);
                       },
+                      alreadyScannedCrates: alreadyScannedCrates,
                     ),
                   ),
                 );
