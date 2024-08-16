@@ -129,74 +129,73 @@ class _DriverUnloadDashBoardState extends State<DriverUnloadDashBoard> {
           itemBuilder: (context, index) {
             final deliveryBatch = deliveryBatches[index];
             return GestureDetector(
-              onTap: () async {},
-              child: GestureDetector(
-                onTap: () async {
-                  var response = await Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (cxt) => ScanCratesPage(
-                        crateList: deliveryBatch.crates,
-                        title: "Unload crates from delivery batch",
-                        afterScanningFinished: () async {
-                          // var response = await getProofOfDelivery(context);
+              onTap: () async {
+                List<Crate> alreadyScannedCrates = await unloadingProgressDB
+                    .getCratesOfDeliveryBatch(deliveryBatch.id);
+                var response = await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (cxt) => ScanCratesPage(
+                      crateList: deliveryBatch.crates,
+                      title: "Unload crates from delivery batch",
+                      afterScanningFinished: () async {
+                        // var response = await getProofOfDelivery(context);
 
-                          // if (response != null) {
-                          //   bool success = await deliver(
-                          //     deliveryBatch,
-                          //     response['note'],
-                          //     response['image'],
-                          //     response['signature'],
-                          //   );
-                          //   if (success) {
-                          //     await getDeliveryBatches();
-                          //   }
-                          // }
+                        // if (response != null) {
+                        //   bool success = await deliver(
+                        //     deliveryBatch,
+                        //     response['note'],
+                        //     response['image'],
+                        //     response['signature'],
+                        //   );
+                        //   if (success) {
+                        //     await getDeliveryBatches();
+                        //   }
+                        // }
 
-                          var unloadResponse = await HttpService().update(
-                            'app/vehicles/${widget.driver.currentVehicle!.id}/unload_delivery_batch/',
-                            {"id": deliveryBatch.id},
-                          );
-                          if (unloadResponse.statusCode == 200) {
-                            unloadingProgressDB
-                                .clearProgressOfDeliveryBatch(deliveryBatch.id);
-                            await getDeliveryBatches();
-                          }
+                        var unloadResponse = await HttpService().update(
+                          'app/vehicles/${widget.driver.currentVehicle!.id}/unload_delivery_batch/',
+                          {"id": deliveryBatch.id},
+                        );
+                        if (unloadResponse.statusCode == 200) {
+                          unloadingProgressDB
+                              .clearProgressOfDeliveryBatch(deliveryBatch.id);
+                          await getDeliveryBatches();
+                        }
 
-                          Navigator.pop(context);
-                        },
-                        onCrateScanned: (List<Crate> scannedCrates) async {
-                          await unloadingProgressDB.saveCrates(
-                              deliveryBatch.id, scannedCrates);
-                        },
-                      ),
+                        Navigator.pop(context);
+                      },
+                      onCrateScanned: (List<Crate> scannedCrates) async {
+                        await unloadingProgressDB.saveCrates(
+                            deliveryBatch.id, scannedCrates);
+                      },
                     ),
-                  );
-                  if (response == true) {
-                    setState(() {
-                      deliveryBatches = [];
-                    });
-                    getDeliveryBatches();
-                  }
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: const Border.fromBorderSide(
-                        BorderSide(color: Colors.grey),
-                      ),
-                      borderRadius: BorderRadius.circular(10),
+                  ),
+                );
+                if (response == true) {
+                  setState(() {
+                    deliveryBatches = [];
+                  });
+                  getDeliveryBatches();
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: const Border.fromBorderSide(
+                      BorderSide(color: Colors.grey),
                     ),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        // backgroundColor: Colors.lightBlue,
-                        foregroundColor: Colors.white,
-                        child: Text(deliveryBatch.id.toString().toUpperCase()),
-                      ),
-                      title: Text("To: ${deliveryBatch.customer!.name}"),
-                      subtitle: Text(deliveryBatch.address!.value),
-                      trailing: const Icon(Icons.chevron_right_sharp),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      // backgroundColor: Colors.lightBlue,
+                      foregroundColor: Colors.white,
+                      child: Text(deliveryBatch.id.toString().toUpperCase()),
                     ),
+                    title: Text("To: ${deliveryBatch.customer!.name}"),
+                    subtitle: Text(deliveryBatch.address!.value),
+                    trailing: const Icon(Icons.chevron_right_sharp),
                   ),
                 ),
               ),

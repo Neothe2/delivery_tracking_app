@@ -4,6 +4,8 @@ import 'package:delivery_tracking_app/models/address.dart';
 import 'package:delivery_tracking_app/models/crate.dart';
 import 'package:delivery_tracking_app/models/customer.dart';
 import 'package:delivery_tracking_app/models/delivery_batch_draft.dart';
+import 'package:delivery_tracking_app/scanning_progress_saving/loading_scanning_progress.dart';
+import 'package:delivery_tracking_app/scanning_progress_saving/unloading_scanning_progress.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -16,6 +18,8 @@ void main() async {
   Hive.registerAdapter(CrateAdapter());
   Hive.registerAdapter(CustomerAdapter());
   Hive.registerAdapter(AddressAdapter());
+  Hive.registerAdapter(LoadingScanningProgressAdapter());
+  Hive.registerAdapter(UnloadingScanningProgressAdapter());
   runApp(const MyApp());
 }
 

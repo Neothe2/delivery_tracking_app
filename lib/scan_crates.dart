@@ -38,10 +38,13 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
   static const MethodChannel _channel = MethodChannel('vibration');
 
   initializeScannedCrates() {
-    for (var crate in remainingCrates) {
-      if (widget.alreadyScannedCrates.contains(crate.crateId)) {
-        remainingCrates.remove(crate);
-        scannedCrates.add(crate);
+    var tempRemainingCrates = [...remainingCrates];
+    for (var crate in tempRemainingCrates) {
+      for (var alreadyScannedCrate in widget.alreadyScannedCrates) {
+        if (alreadyScannedCrate.crateId == crate.crateId) {
+          remainingCrates.remove(crate);
+          scannedCrates.add(crate);
+        }
       }
     }
   }
@@ -103,13 +106,15 @@ class _ScanCratesPageState extends State<ScanCratesPage> {
     } else {
       setState(() {
         Vibration.vibrate(duration: 100, amplitude: 10);
-        if (widget.onCrateScanned != null) {
-          widget.onCrateScanned!(scannedCrates);
-        }
+
         correctionText = 'Correct';
         remainingCrates.remove(scannedCrate!);
         scannedCrates.add(scannedCrate);
         progressBarValue = progressBarValueForOneUnit * remainingCrates.length;
+
+        if (widget.onCrateScanned != null) {
+          widget.onCrateScanned!(scannedCrates);
+        }
       });
     }
   }
