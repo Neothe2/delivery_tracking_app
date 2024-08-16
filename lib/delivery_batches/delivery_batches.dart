@@ -154,7 +154,7 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
                 ),
               ),
             );
-            await _getDeliveryBatchDrafts();
+            await _fetchAllData();
           },
           child: Padding(
             padding: const EdgeInsets.all(8.0),
