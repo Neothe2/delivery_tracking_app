@@ -84,7 +84,7 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
                     style: TextStyle(color: Colors.grey.shade700),
                   ),
                 )
-              : ListView(children: [
+              : ListView(physics: AlwaysScrollableScrollPhysics(), children: [
                   Column(
                     children: [
                       ..._buildDraftList(),

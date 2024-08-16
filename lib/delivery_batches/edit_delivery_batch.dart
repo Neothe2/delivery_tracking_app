@@ -5,6 +5,7 @@ import 'package:delivery_tracking_app/conditional_3_button_bottom_bar.dart';
 import 'package:delivery_tracking_app/custom_app_bar.dart';
 import 'package:delivery_tracking_app/delivery_batches/select_crates_button.dart';
 import 'package:delivery_tracking_app/delivery_batches/select_crates_page.dart';
+import 'package:delivery_tracking_app/delivery_batches/select_customer_button.dart';
 import 'package:delivery_tracking_app/delivery_batches/select_customer_page.dart';
 import 'package:delivery_tracking_app/http_service.dart';
 import 'package:delivery_tracking_app/interfaces/delivery_batch_interface.dart';
@@ -262,33 +263,46 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
 
   _buildSelectCustomerButton() {
     return [
-      SizedBox(
-        width: 300,
-        child: OutlinedButton(
-          onPressed: () async {
-            List<dynamic>? response = await Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (cxt) => SelectCustomerPage(
-                  customerList: customerList,
-                  initialCustomer: selectedCustomer,
-                  selectedAddress: selectedAddress,
-                ),
-              ),
-            );
-
-            if (response != null) {
-              if (response[0] is Customer) {
-                setState(() {
-                  selectedCustomer = response[0];
-                });
-                selectedCustomerId = response[0].id;
-                selectedAddress = response[1];
-              }
-            }
-          },
-          child: const Text('Select Customer'),
-        ),
+      SelectCustomerButton(
+        customerList: customerList,
+        selectedCustomer: selectedCustomer,
+        selectedAddress: selectedAddress,
+        addClicked: addClicked,
+        onCustomerSelected: (Customer customer, Address address) {
+          setState(() {
+            selectedCustomer = customer;
+            selectedAddress = address;
+            selectedCustomerId = customer.id;
+          });
+        },
       ),
+      // SizedBox(
+      //   width: 300,
+      //   child: OutlinedButton(
+      //     onPressed: () async {
+      //       List<dynamic>? response = await Navigator.of(context).push(
+      //         MaterialPageRoute(
+      //           builder: (cxt) => SelectCustomerPage(
+      //             customerList: customerList,
+      //             initialCustomer: selectedCustomer,
+      //             selectedAddress: selectedAddress,
+      //           ),
+      //         ),
+      //       );
+
+      //       if (response != null) {
+      //         if (response[0] is Customer) {
+      //           setState(() {
+      //             selectedCustomer = response[0];
+      //           });
+      //           selectedCustomerId = response[0].id;
+      //           selectedAddress = response[1];
+      //         }
+      //       }
+      //     },
+      //     child: const Text('Select Customer'),
+      //   ),
+      // ),
     ];
   }
 

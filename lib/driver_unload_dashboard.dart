@@ -6,6 +6,7 @@ import 'package:delivery_tracking_app/custom_app_bar.dart';
 import 'package:delivery_tracking_app/http_service.dart';
 import 'package:delivery_tracking_app/proof_of_delivery/proof_of_delivery.dart';
 import 'package:delivery_tracking_app/scan_crates.dart';
+import 'package:delivery_tracking_app/scanning_progress_saving/unloading_scanning_progress_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -26,6 +27,8 @@ class DriverUnloadDashBoard extends StatefulWidget {
 }
 
 class _DriverUnloadDashBoardState extends State<DriverUnloadDashBoard> {
+  UnloadingScanningProgressRepository unloadingProgressDB =
+      UnloadingScanningProgressRepository();
   List<DeliveryBatch> deliveryBatches = [];
   bool batchesLoaded = false;
 
@@ -154,10 +157,16 @@ class _DriverUnloadDashBoardState extends State<DriverUnloadDashBoard> {
                             {"id": deliveryBatch.id},
                           );
                           if (unloadResponse.statusCode == 200) {
+                            unloadingProgressDB
+                                .clearProgressOfDeliveryBatch(deliveryBatch.id);
                             await getDeliveryBatches();
                           }
 
                           Navigator.pop(context);
+                        },
+                        onCrateScanned: (List<Crate> scannedCrates) async {
+                          await unloadingProgressDB.saveCrates(
+                              deliveryBatch.id, scannedCrates);
                         },
                       ),
                     ),

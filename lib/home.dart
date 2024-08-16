@@ -504,6 +504,7 @@ class _HomePageState extends State<HomePage> {
     var loadResponse = await HttpService()
         .update('app/vehicles/${driver!.currentVehicle!.id}/load_vehicle/', {});
     if (loadResponse.statusCode == 200) {
+      loadingProgressDB.clear();
       Navigator.pop(context);
     }
   }
