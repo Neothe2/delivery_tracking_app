@@ -75,23 +75,23 @@ class _DeliveryBatchesPageState extends State<DeliveryBatchesPage> {
           onRefresh: () async {
             await _fetchAllData();
           },
-          child: (deliveryBatches.isEmpty && deliveryBatchDrafts.isEmpty)
-              ? Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'There are no delivery batches. Press the + button to add one.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey.shade700),
+          child: ListView(physics: AlwaysScrollableScrollPhysics(), children: [
+            Column(
+              children: [
+                if (deliveryBatches.isEmpty && deliveryBatchDrafts.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'There are no delivery batches. Press the + button to add one.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey.shade700),
+                    ),
                   ),
-                )
-              : ListView(physics: AlwaysScrollableScrollPhysics(), children: [
-                  Column(
-                    children: [
-                      ..._buildDraftList(),
-                      ..._buildDeliveryBatchList(),
-                    ],
-                  ),
-                ])
+                ..._buildDraftList(),
+                ..._buildDeliveryBatchList(),
+              ],
+            ),
+          ])
 
           // ListView.builder(
           //     itemCount: deliveryBatches.length,

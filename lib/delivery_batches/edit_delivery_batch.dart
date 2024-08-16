@@ -357,9 +357,14 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
           }
         }
       } else {
+        Map<String, dynamic> json = jsonDecode(response.body);
         // Successfully saved as normal delivery batch
-        var newDeliveryBatch =
-            DeliveryBatch.fromJson(jsonDecode(response.body));
+        // var newDeliveryBatch = DeliveryBatch.fromJson(
+        //   jsonDecode(response.body),
+        // );
+
+        var newDeliveryBatch = DeliveryBatch(json["id"], selectedCrates, null,
+            selectedCustomer!, selectedAddress!);
 
         // Delete the draft from the local database
         if (widget.deliveryBatch is DeliveryBatchDraft) {
@@ -370,7 +375,7 @@ class _EditDeliveryBatchState extends State<EditDeliveryBatch> {
           }
         }
 
-        Navigator.pop(context, newDeliveryBatch);
+        Navigator.pop(context);
       }
     } else {
       // Handle validation errors
